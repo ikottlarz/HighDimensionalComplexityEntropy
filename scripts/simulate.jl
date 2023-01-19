@@ -14,7 +14,7 @@ function simulate_mackey_glass(;
     t_sample::Float64,
     N::Int64,
     Ttr::Int64
-    ) -> Dict{String, Any}
+    )
     trajectories = Dict{String, Any}()
     @showprogress for τ in 1:max_τ
         u0 = zeros(Int(τ/Δt))
