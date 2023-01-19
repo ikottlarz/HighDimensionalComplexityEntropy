@@ -15,7 +15,7 @@ function simulate_mackey_glass(;
     N::Int64,
     Ttr::Int64
     )
-    trajectories = Dict{Symbol, Any}()
+    trajectories = Dict{Str, Any}()
     @showprogress for τ in 1:max_τ
         u0 = zeros(Int(τ/Δt))
         u0[1] = 1.
@@ -27,9 +27,9 @@ function simulate_mackey_glass(;
 
         X = X[1:steps_per_sample:end, 1]
 
-        trajectories[Symbol("τ$τ")] = X
+        trajectories["τ$τ"] = X
     end
-    return trajectories, @strdict(β, γ, n, Δt, N, Ttr)
+    return trajectories, @strdict(β, γ, n, Δt, N, Ttr, t_sample)
 end
 
 
