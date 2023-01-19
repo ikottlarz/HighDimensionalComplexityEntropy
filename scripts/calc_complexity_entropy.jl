@@ -48,7 +48,7 @@ function complexity_entropy(config)
     return complexity_entropy(config...)
 end
 
-produce_or_load(
+data, filename = produce_or_load(
     complexity_entropy,
     (
         filename=datadir("sims/mackey_glass.jld2"),
