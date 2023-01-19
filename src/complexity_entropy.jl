@@ -2,7 +2,7 @@ using DrWatson
 @quickactivate
 using ComplexityMeasures, Distances
 
-function complexity_entropy(est::ProbabilitiesEstimator, x::AbstractVector{T}) where T<:Real
+function entropy_stat_complexity(est::ProbabilitiesEstimator, x::AbstractVector{T}) where T<:Real
     probs = probabilities(est, x)
     entropy = entropy_normalized(est, x)
     L = total_outcomes(est, x)

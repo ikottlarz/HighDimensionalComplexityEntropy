@@ -2,14 +2,15 @@ using DrWatson
 @quickactivate
 include(srcdir("complexity_entropy.jl"))
 using ProgressMeter
+using TimeseriesSurrogates
 
-function calc_complexity_entropy(filename::String;
+function complexity_entropy(
+    x::AbstractVector,
     ms::AbstractVector{Int},
     τs::AbstractVector{Int},
     lengths::AbstractVector{Int},
     dims::AbstractVector{Int}
-)
-    loaded_file = wload(filename)
+    )
     data = loaded_file["data"]
     ce_values = Dict{String, Any}()
     @showprogress for m in ms
@@ -21,19 +22,52 @@ function calc_complexity_entropy(filename::String;
                 ce_values["m=$m"]["τ=$τ"]["data_length=$data_length"] = Dict{String, Any}()
                 for dim in dims
                     x = data["τ$dim"][1:data_length]
-                    entropy, complexity = complexity_entropy(est, x)
+                    entropy, complexity = entropy_stat_complexity(est, x)
                     ce_values["m=$m"]["τ=$τ"]["data_length=$data_length"]["dim=$dim"] = [entropy,  complexity]
                 end
             end
         end
     end
+    return ce_values
+end
+
+function complexity_entropy(
+    filename::String,
+    ms::AbstractVector{Int},
+    τs::AbstractVector{Int},
+    lengths::AbstractVector{Int},
+    dims::AbstractVector{Int}
+    )
+    loaded_file = wload(filename)
+    @show x = loaded_file["data"]
+    ce_values = complexity_entropy(x; ms, τs, lengths, dims)
     return Dict("data"=>ce_values, "simulation_parameters"=>loaded_file["parameters"], "parameters"=>@strdict(ms, τs, lengths, dims))
 end
 
-calc_complexity_entropy(
-    datadir("sims/mackey_glass.jld2");
-    ms=[3, 4, 5, 6, 7],
-    τs=collect(1:50),
-    lengths=10 .^(2:6),
-    dims=collect(1:50)
+function complexity_entropy(config)
+    return complexity_entropy(config...)
+end
+
+produce_or_load(
+    complexity_entropy,
+    (
+        filename=datadir("sims/mackey_glass.jld2"),
+        ms=[3, 4, 5, 6, 7],
+        τs=collect(1:50),
+        lengths=10 .^(2:6),
+        dims=collect(1:50)
+    ),
+    datadir("analysis");
+    filename="mackey_glass"
 )
+
+function surrogate_complexity_entropy(filename::String; num_surrogates, kwargs...)
+    loaded_file = wload(filename)
+    x = loaded_file["data"]
+    surrogate_ce = Dict{String, Any}()
+    for n in 1:num_surrogates
+        sur = surrogate(x, RandomFourier(true))
+        surrogate_ce["n$n"] = complexity_entropy(sur, kwargs...)
+    end
+    return Dict("data"=>surrogate_ce, "simulation_parameters"=>loaded_file["parameters"], "parameters"=>@strdict(kwargs...))
+end
