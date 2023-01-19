@@ -12,17 +12,14 @@ function calc_complexity_entropy(filename::String;
     loaded_file = wload(filename)
     data = loaded_file["data"]
     ce_values = Dict{String, Any}()
-    for m in ms
-        @show m
+    @showprogress for m in ms
         ce_values["m=$m"] = Dict{String, Any}()
         for τ in τs
-            @show τ
             ce_values["m=$m"]["τ=$τ"] = Dict{String, Any}()
             est = SymbolicPermutation(; m, τ)
             for data_length in lengths
-                @show data_length
                 ce_values["m=$m"]["τ=$τ"]["data_length=$data_length"] = Dict{String, Any}()
-                @showprogress for dim in dims
+                for dim in dims
                     x = data["τ$dim"][1:data_length]
                     entropy, complexity = complexity_entropy(est, x)
                     ce_values["m=$m"]["τ=$τ"]["data_length=$data_length"]["dim=$dim"] = [entropy,  complexity]
