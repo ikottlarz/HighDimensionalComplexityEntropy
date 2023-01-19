@@ -5,13 +5,12 @@ using ProgressMeter
 using TimeseriesSurrogates
 
 function complexity_entropy(
-    x::AbstractVector,
+    data::Dict{String, Any};
     ms::AbstractVector{Int},
     τs::AbstractVector{Int},
     lengths::AbstractVector{Int},
     dims::AbstractVector{Int}
     )
-    data = loaded_file["data"]
     ce_values = Dict{String, Any}()
     @showprogress for m in ms
         ce_values["m=$m"] = Dict{String, Any}()
@@ -21,8 +20,8 @@ function complexity_entropy(
             for data_length in lengths
                 ce_values["m=$m"]["τ=$τ"]["data_length=$data_length"] = Dict{String, Any}()
                 for dim in dims
-                    x = data["τ$dim"][1:data_length]
-                    entropy, complexity = entropy_stat_complexity(est, x)
+                    ts = data["τ$τ"][1:data_length]
+                    entropy, complexity = entropy_stat_complexity(est, ts)
                     ce_values["m=$m"]["τ=$τ"]["data_length=$data_length"]["dim=$dim"] = [entropy,  complexity]
                 end
             end
@@ -39,8 +38,8 @@ function complexity_entropy(
     dims::AbstractVector{Int}
     )
     loaded_file = wload(filename)
-    @show x = loaded_file["data"]
-    ce_values = complexity_entropy(x; ms, τs, lengths, dims)
+    data = loaded_file["data"]
+    ce_values = complexity_entropy(data; ms, τs, lengths, dims)
     return Dict("data"=>ce_values, "simulation_parameters"=>loaded_file["parameters"], "parameters"=>@strdict(ms, τs, lengths, dims))
 end
 
