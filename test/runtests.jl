@@ -2,14 +2,17 @@ using DrWatson, Test
 @quickactivate "2023-01-19_JuliaSimulations"
 
 # Here you include files using `srcdir`
-# include(srcdir("file.jl"))
+include(srcdir("complexity_entropy.jl"))
 
 # Run test suite
 println("Starting tests")
 ti = time()
 
 @testset "2023-01-19_JuliaSimulations tests" begin
-    @test 1 == 1
+    x = randn(10000)
+    est = SymbolicPermutation(; m=3)
+    entropy, complexity = complexity_entropy(est, x)
+    @test 0 < complexity < 0.01
 end
 
 ti = time() - ti
