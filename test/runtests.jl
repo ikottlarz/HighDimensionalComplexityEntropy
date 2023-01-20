@@ -11,7 +11,7 @@ ti = time()
 @testset "2023-01-19_JuliaSimulations tests" begin
     x = randn(10000)
     est = SymbolicPermutation(; m=3)
-    entropy, complexity = complexity_entropy(est, x)
+    entropy, complexity = entropy_stat_complexity(est, x)
     @test 0 < complexity < 0.01
 end
 
