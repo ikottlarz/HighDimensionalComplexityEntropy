@@ -75,6 +75,7 @@ function surrogate_complexity_entropy(
     for n in 1:num_surrogates
         surrogate_ce["n$n"] = Dict{String, Any}()
         for dim in dims
+            @show dim
             for data_length in lengths
                 sur = surrogate(x["τ$dim"][1:data_length], RandomFourier(true))
                 data = Dict{String, Any}("τ$dim"=>sur)
