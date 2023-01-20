@@ -14,7 +14,7 @@ function complexity_entropy(
     ce_values = Dict{String, Any}()
     @showprogress for dim in dims
         ce_values["dim=$dim"] = Dict{String, Any}()
-        for data_length in lenghts
+        for data_length in lengths
             ce_values["dim=$dim"]["data_length=$data_length"] = Dict{String, Any}()
             ts = data["τ$dim"][1:data_length]
             for m in ms
