@@ -73,7 +73,7 @@ function surrogate_complexity_entropy(
     x = loaded_file["data"]
     surrogate_ce = Dict{String, Any}()
     for n in 1:num_surrogates
-        surrogate_ce["n$n"] = Dict{Str, Any}()
+        surrogate_ce["n$n"] = Dict{String, Any}()
         for dim in dims
             for data_length in lengths
                 sur = surrogate(x["τ$dim"][1:data_length], RandomFourier(true))
