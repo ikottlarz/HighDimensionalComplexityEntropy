@@ -17,12 +17,12 @@ function complexity_entropy(
         for data_length in lengths
             ce_values["dim=$dim"]["data_length=$data_length"] = Dict{String, Any}()
             ts = data["τ$dim"][1:data_length]
-            for m in ms
+            Threads.@threads for m in ms
                 ce_values["dim=$dim"]["data_length=$data_length"]["m=$m"] = Dict{String, Any}()
                 for τ in τs
                     est = SymbolicPermutation(; m, τ)
                     entropy, complexity = entropy_stat_complexity(est, ts)
-                    ce_values["dim=$dim"]["data_length=$data_length"]["m=$m"] = [entropy,  complexity]
+                    ce_values["dim=$dim"]["data_length=$data_length"]["m=$m"]["τ$τ"] = [entropy,  complexity]
                 end
             end
         end
@@ -59,6 +59,17 @@ data, filename = produce_or_load(
     datadir("analysis");
     filename="mackey_glass"
 )
+
+using CairoMakie
+
+fig = figure()
+ax = fig[1,1]
+m = 6
+data_length = 10^6
+dim = 40
+for τ in 1:50
+    plot!(ax, data["dim=$dim"]["data_length=$data_length"]["m=$m"]["τ$τ"]...)
+end
 
 function surrogate_complexity_entropy(filename::String; num_surrogates, kwargs...)
     loaded_file = wload(filename)
