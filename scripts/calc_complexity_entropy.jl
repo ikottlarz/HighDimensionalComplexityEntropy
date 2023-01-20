@@ -12,17 +12,17 @@ function complexity_entropy(
     dims::AbstractVector{Int}
     )
     ce_values = Dict{String, Any}()
-    @showprogress for m in ms
-        ce_values["m=$m"] = Dict{String, Any}()
-        for τ in τs
-            ce_values["m=$m"]["τ=$τ"] = Dict{String, Any}()
-            est = SymbolicPermutation(; m, τ)
-            for data_length in lengths
-                ce_values["m=$m"]["τ=$τ"]["data_length=$data_length"] = Dict{String, Any}()
-                for dim in dims
-                    ts = data["τ$τ"][1:data_length]
+    @showprogress for dim in dims
+        ce_values["dim=$dim"] = Dict{String, Any}()
+        for data_length in lenghts
+            ce_values["dim=$dim"]["data_length=$data_length"] = Dict{String, Any}()
+            ts = data["τ$dim"][1:data_length]
+            for m in ms
+                ce_values["dim=$dim"]["data_length=$data_length"]["m=$m"] = Dict{String, Any}()
+                for τ in τs
+                    est = SymbolicPermutation(; m, τ)
                     entropy, complexity = entropy_stat_complexity(est, ts)
-                    ce_values["m=$m"]["τ=$τ"]["data_length=$data_length"]["dim=$dim"] = [entropy,  complexity]
+                    ce_values["dim=$dim"]["data_length=$data_length"]["m=$m"] = [entropy,  complexity]
                 end
             end
         end
@@ -53,7 +53,7 @@ data, filename = produce_or_load(
         filename=datadir("sims/mackey_glass.jld2"),
         ms=[3, 4, 5, 6, 7],
         τs=collect(1:50),
-        lengths=10 .^(2:6),
+        lengths=10 .^(3:6),
         dims=collect(1:50)
     ),
     datadir("analysis");
