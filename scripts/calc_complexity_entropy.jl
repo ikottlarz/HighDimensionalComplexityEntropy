@@ -4,6 +4,13 @@ include(srcdir("complexity_entropy.jl"))
 using ProgressMeter
 using TimeseriesSurrogates
 
+
+"""
+    function complexity_entropy!(data; ms, τs, lengths, dims, ce_values::Dict)
+
+This function calculates the statistical complexity and permutation entropy for
+all
+"""
 function complexity_entropy!(
     data::Dict{String, Any};
     ms::AbstractVector{Int},
@@ -18,11 +25,11 @@ function complexity_entropy!(
             ce_values["dim=$dim"]["data_length=$data_length"] = Dict{String, Any}()
             ts = data["τ$dim"][1:data_length]
             for m in ms
-                ce_values["dim=$dim"]["data_length=$data_length"]["m=$m"] = Dict{String, Any}()
+                ce_values["dim=$dim"]["data_length=$data_length"]["m=$m"] = Dict{Int, Any}(τs .=> Ref([]))
                 Threads.@threads for τ in collect(τs)
                     est = SymbolicPermutation(; m, τ)
                     entropy, complexity = entropy_stat_complexity(est, ts)
-                    ce_values["dim=$dim"]["data_length=$data_length"]["m=$m"]["τ$τ"] = [entropy,  complexity]
+                    ce_values["dim=$dim"]["data_length=$data_length"]["m=$m"][τ]  = [entropy,  complexity]
                 end
             end
         end
