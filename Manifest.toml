@@ -2,7 +2,7 @@
 
 julia_version = "1.8.2"
 manifest_format = "2.0"
-project_hash = "ed6d1558305d65caa36d65ff6abcbdad306fa4a6"
+project_hash = "8df1394887e2d0e1a3e6fe55cf2f2121525dad02"
 
 [[deps.AbstractFFTs]]
 deps = ["ChainRulesCore", "LinearAlgebra"]
@@ -14,6 +14,17 @@ version = "1.2.1"
 git-tree-sha1 = "faa260e4cb5aba097a73fab382dd4b5819d8ec8c"
 uuid = "1520ce14-60c1-5f80-bbc7-55ef81b5835c"
 version = "0.4.4"
+
+[[deps.ActorInterfaces]]
+git-tree-sha1 = "6efdd5bec34cbbcd0ecdd25391504280d9d27d2a"
+uuid = "7e194583-e687-41a0-9133-1c22a29c80af"
+version = "0.1.0"
+
+[[deps.Actors]]
+deps = ["ActorInterfaces", "Dates", "Distributed", "Proquint", "Serialization"]
+git-tree-sha1 = "732ce395c91e8c429bc62266be7827f48d77e26a"
+uuid = "18269d71-cc38-4e02-b8c8-1db30113a6dd"
+version = "0.2.5"
 
 [[deps.Adapt]]
 deps = ["LinearAlgebra"]
@@ -1151,6 +1162,11 @@ deps = ["Distributed", "Printf"]
 git-tree-sha1 = "d7a7aef8f8f2d537104f170139553b14dfe39fe9"
 uuid = "92933f4c-e287-5a05-a399-4b506db050ca"
 version = "1.7.2"
+
+[[deps.Proquint]]
+git-tree-sha1 = "eb223efb13af2894a8e61e21868914350991eec9"
+uuid = "710532b4-0dcf-4e85-9a00-0fba2d710edd"
+version = "0.1.0"
 
 [[deps.QOI]]
 deps = ["ColorTypes", "FileIO", "FixedPointNumbers"]
