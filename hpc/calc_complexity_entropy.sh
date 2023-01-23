@@ -1,3 +1,4 @@
+#!/bin/bash
 #SBATCH -p medium
 #SBATCH -c 40
 #SBATCH -t 500
