@@ -17,12 +17,15 @@ function complexity_entropy!(
         for data_length in lengths
             ce_values["dim=$dim"]["data_length=$data_length"] = Dict{String, Any}()
             ts = data["τ$dim"][1:data_length]
-            Threads.@threads for m in ms
+            for m in ms
                 ce_values["dim=$dim"]["data_length=$data_length"]["m=$m"] = Dict{String, Any}()
-                for τ in τs
-                    est = SymbolicPermutation(; m, τ)
-                    entropy, complexity = entropy_stat_complexity(est, ts)
-                    ce_values["dim=$dim"]["data_length=$data_length"]["m=$m"]["τ$τ"] = [entropy,  complexity]
+                lk = ReentrantLock()
+                Threads.@threads for τ in collect(τs)
+                    lock(lk) do
+                        est = SymbolicPermutation(; m, τ)
+                        entropy, complexity = entropy_stat_complexity(est, ts)
+                        ce_values["dim=$dim"]["data_length=$data_length"]["m=$m"]["τ$τ"] = [entropy,  complexity]
+                    end
                 end
             end
         end
@@ -74,8 +77,7 @@ function surrogate_complexity_entropy(
     surrogate_ce = Dict{String, Any}()
     for n in 1:num_surrogates
         surrogate_ce["n$n"] = Dict{String, Any}()
-        for dim in dims
-            @show dim
+        @showprogress for dim in dims
             for data_length in lengths
                 sur = surrogate(x["τ$dim"][1:data_length], RandomFourier(true))
                 data = Dict{String, Any}("τ$dim"=>sur)
