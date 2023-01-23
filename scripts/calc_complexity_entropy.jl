@@ -3,6 +3,8 @@ using DrWatson
 include(srcdir("complexity_entropy.jl"))
 using ProgressMeter
 using TimeseriesSurrogates
+include(srcdir("threadsafe_dict.jl"))
+using .ThreadsafeDict
 
 
 """
@@ -25,12 +27,13 @@ function complexity_entropy!(
             ce_values["dim=$dim"]["data_length=$data_length"] = Dict{String, Any}()
             ts = data["τ$dim"][1:data_length]
             for m in ms
-                ce_values["dim=$dim"]["data_length=$data_length"]["m=$m"] = Dict{Int, Any}(τs .=> Ref([]))
+                d = dictsrv(Dict{Int, Vector{Float64}}())
                 Threads.@threads for τ in collect(τs)
                     est = SymbolicPermutation(; m, τ)
                     entropy, complexity = entropy_stat_complexity(est, ts)
-                    ce_values["dim=$dim"]["data_length=$data_length"]["m=$m"][τ]  = [entropy,  complexity]
+                    d[τ]  = [entropy,  complexity]
                 end
+                ce_values["dim=$dim"]["data_length=$data_length"]["m=$m"] = d()
             end
         end
     end
