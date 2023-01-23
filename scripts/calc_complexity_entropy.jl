@@ -19,13 +19,10 @@ function complexity_entropy!(
             ts = data["τ$dim"][1:data_length]
             for m in ms
                 ce_values["dim=$dim"]["data_length=$data_length"]["m=$m"] = Dict{String, Any}()
-                lk = ReentrantLock()
                 Threads.@threads for τ in collect(τs)
-                    lock(lk) do
-                        est = SymbolicPermutation(; m, τ)
-                        entropy, complexity = entropy_stat_complexity(est, ts)
-                        ce_values["dim=$dim"]["data_length=$data_length"]["m=$m"]["τ$τ"] = [entropy,  complexity]
-                    end
+                    est = SymbolicPermutation(; m, τ)
+                    entropy, complexity = entropy_stat_complexity(est, ts)
+                    ce_values["dim=$dim"]["data_length=$data_length"]["m=$m"]["τ$τ"] = [entropy,  complexity]
                 end
             end
         end
