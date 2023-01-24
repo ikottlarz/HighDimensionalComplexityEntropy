@@ -13,7 +13,7 @@ This function calculates the statistical complexity and permutation entropy for
 all
 """
 function complexity_entropy!(
-    data::Dict{String, AbstractVector};
+    data::Dict{String, Any};
     ms::AbstractVector{Int},
     τs::AbstractVector{Int},
     lengths::AbstractVector{Int},
@@ -47,7 +47,7 @@ function complexity_entropy(
     )
     loaded_file = wload(filename)
     data = loaded_file["data"]
-    ce_values = Dict{String, Any}()
+    ce_values = Dict{String, Dict}()
     complexity_entropy!(data; ms, τs, lengths, dims, ce_values)
     return Dict("data"=>ce_values, "simulation_parameters"=>loaded_file["parameters"], "parameters"=>@strdict(ms, τs, lengths, dims))
 end
@@ -86,7 +86,7 @@ function surrogate_complexity_entropy(
         @showprogress for dim in dims
             for data_length in lengths
                 sur = surrogate(x["τ$dim"][1:data_length], RandomFourier(true))
-                data = Dict{String, AbstractVector}("τ$dim"=>sur)
+                data = Dict{String, Any}("τ$dim"=>sur)
                 complexity_entropy!(
                     data;
                     ms, τs, lengths=[data_length], dims=[dim], ce_values=surrogate_ce["n$n"]
