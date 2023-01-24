@@ -12,6 +12,6 @@ echo "#SBATCH -o $DIRECTORY/hpc/outputs/$fn.out" >> "$DIRECTORY/hpc/slurm_script
 
 echo "julia -e 'import Pkg; Pkg.add(\"DrWatson\"); using DrWatson; @quickactivate; Pkg.instantiate()'" >> "$DIRECTORY/hpc/slurm_scripts/$fn.sh"
 echo "julia ../scripts/simulate.jl" >> "$DIRECTORY/hpc/slurm_scripts/$fn.sh"
-echo "julia - t 40 ../scripts/calc_complexity_entropy.jl" >> "$DIRECTORY/hpc/slurm_scripts/$fn.sh"
+echo "julia -t 40 ../scripts/calc_complexity_entropy.jl" >> "$DIRECTORY/hpc/slurm_scripts/$fn.sh"
 
 sbatch -C scratch $DIRECTORY/hpc/slurm_scripts/$fn.sh
