@@ -43,7 +43,6 @@ function complexity_entropy(config::NamedTuple)
         filename=hash,
         prefix=filename_prefix
     )
-    @show typeof(data["data"])
     ce_values = Dict{String, Dict}()
     @showprogress for dim in dims
         ce_values["dim=$dim"] = Dict{String, Dict}()
