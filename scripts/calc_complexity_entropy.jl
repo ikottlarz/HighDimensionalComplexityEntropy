@@ -78,7 +78,7 @@ function surrogate_complexity_entropy(config::NamedTuple)
                 sur = surrogate(data["data"]["dim=$dim"][1:data_length], RandomFourier(true))
                 complexity_entropy!(
                     sur;
-                    ms, τs, ce_values=surrogate_ce["n$n"]["dim=$dim"]["data_length=$data_length"]
+                    ms, τs, ce_values=surrogate_ce["n=$n"]["dim=$dim"]["data_length=$data_length"]
                 )
             end
         end
