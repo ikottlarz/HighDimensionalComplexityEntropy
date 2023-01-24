@@ -26,7 +26,7 @@ function complexity_entropy!(
     for m in ms
         d = dictsrv(Dict{String, Vector{Float64}}())
         Threads.@threads for τ in τs
-            est = SymbolicPermutation(; m, τ)
+            est = ComplexityMeasures.SymbolicPermutation(; m, τ)
             entropy, complexity = entropy_stat_complexity(est, time_series)
             d["τ$τ"]  = [entropy,  complexity]
         end
