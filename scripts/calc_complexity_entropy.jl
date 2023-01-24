@@ -1,7 +1,7 @@
 using DrWatson
 @quickactivate
 
-using ComplexityMeasures
+using ComplexityMeasures, TimeseriesSurrogates
 using ProgressMeter
 include(srcdir("complexity_entropy.jl"))
 include(srcdir("threadsafe_dict.jl"))
