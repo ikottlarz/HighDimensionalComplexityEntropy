@@ -7,7 +7,7 @@ echo "#!/bin/bash" > "$DIRECTORY/hpc/slurm_scripts/$fn.sh"
 echo "#SBATCH -p medium" >> "$DIRECTORY/hpc/slurm_scripts/$fn.sh"
 echo "#SBATCH -c 40" >> "$DIRECTORY/hpc/slurm_scripts/$fn.sh"
 echo "#SBATCH -t 500" >> "$DIRECTORY/hpc/slurm_scripts/$fn.sh"
-echo "#SBATCH --mem-per-cpu 1G" >> "$DIRECTORY/hpc/slurm_scripts/$fn.sh"
+echo "#SBATCH --mem-per-cpu 2G" >> "$DIRECTORY/hpc/slurm_scripts/$fn.sh"
 echo "#SBATCH -o $DIRECTORY/hpc/outputs/$fn.out" >> "$DIRECTORY/hpc/slurm_scripts/$fn.sh"
 
 echo "julia -e 'import Pkg; Pkg.add(\"DrWatson\"); using DrWatson; @quickactivate; Pkg.instantiate()'" >> "$DIRECTORY/hpc/slurm_scripts/$fn.sh"
