@@ -19,7 +19,7 @@ function simulate_mackey_glass(config::NamedTuple)
 
         X = X[1:steps_per_sample:end, 1]
 
-        trajectories["dim$τ"] = X
+        trajectories["dim=$τ"] = X
     end
     return Dict("data"=>trajectories, "parameters"=>@strdict(β, γ, n, Δt, N, Ttr, t_sample))
 end

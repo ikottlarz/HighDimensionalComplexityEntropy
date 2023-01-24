@@ -1,5 +1,7 @@
 using DrWatson
 @quickactivate
+
+using ProgressMeter
 include(srcdir("complexity_entropy.jl"))
 include(srcdir("threadsafe_dict.jl"))
 using .ThreadsafeDict
@@ -40,13 +42,15 @@ function complexity_entropy(config::NamedTuple)
         filename=hash,
         prefix=filename_prefix
     )
+    @show typeof(data["data"])
     ce_values = Dict{String, Dict}()
     @showprogress for dim in dims
         ce_values["dim=$dim"] = Dict{String, Dict}()
         for data_length in lengths
             ce_values["dim=$dim"]["data_length=$data_length"] = Dict{String, Dict}()
+
             complexity_entropy!(
-                data["data"][1:data_length];
+                data["data"]["dim=$dim"][1:data_length];
                 ms, τs,
                 ce_values=ce_values["dim=$dim"]["data_length=$data_length"]
             )

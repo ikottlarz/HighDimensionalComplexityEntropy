@@ -11,7 +11,7 @@ function simulate_generalized_henon(config::NamedTuple)
         u0 = zeros(D)
         ds = DiscreteDynamicalSystem(henons!, u0, [a, b], henons_jac!)
         X = trajectory(ds, N; Ttr = 1000)
-        trajectories["D$D"] = hcat(X[:, 1]...)
+        trajectories["dim=$D"] = hcat(X[:, 1]...)
     end
     return Dict("data"=>trajectories, "parameters"=>@strdict(a, b, N, Ttr))
 end
