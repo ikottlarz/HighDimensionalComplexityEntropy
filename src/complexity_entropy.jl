@@ -2,6 +2,12 @@ using DrWatson
 @quickactivate
 using ComplexityMeasures, Distances
 
+
+"""
+    function entropy_stat_complexity(est::ProbabilitiesEstimator, x::Vector) -> entropy, complexity
+
+Calculates the permutation entropy and statistical complexity according to Rosso et al (2007).
+"""
 function entropy_stat_complexity(est::ProbabilitiesEstimator, x::AbstractVector{T}) where T<:Real
     probs = probabilities(est, x)
     entropy = entropy_normalized(est, x)
