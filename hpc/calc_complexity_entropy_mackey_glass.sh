@@ -12,4 +12,4 @@ echo "#SBATCH -o $fn.out" >> "output/$fn.out"
 echo "julia -e 'import Pkg; Pkg.add(\"DrWatson\"); using DrWatson; @quickactivate; Pkg.instantiate()'" >> "slurm_scripts/$fn.sh"
 echo "julia - t 50 scripts/calc_complexity_entropy_mackey_glass.jl" >> "slurm_scripts/$fn.sh"
 
-sbatch -C scratch slurm_scripts/$fn.sh
+sbatch -C scratch $DIRECTORY/hpc/slurm_scripts/$fn.sh
