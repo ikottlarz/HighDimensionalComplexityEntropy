@@ -6,7 +6,6 @@ using TimeseriesSurrogates
 include(srcdir("threadsafe_dict.jl"))
 using .ThreadsafeDict
 
-
 """
     function complexity_entropy!(data; ms, τs, lengths, dims, ce_values::Dict)
 
@@ -14,24 +13,24 @@ This function calculates the statistical complexity and permutation entropy for
 all
 """
 function complexity_entropy!(
-    data::Dict{String, Any};
+    data::Dict{String, AbstractVector};
     ms::AbstractVector{Int},
     τs::AbstractVector{Int},
     lengths::AbstractVector{Int},
     dims::AbstractVector{Int},
-    ce_values::Dict{String, Any}
+    ce_values::Dict{String, Dict}
     )
     @showprogress for dim in dims
-        ce_values["dim=$dim"] = Dict{String, Any}()
+        ce_values["dim=$dim"] = Dict{String, Dict}()
         for data_length in lengths
-            ce_values["dim=$dim"]["data_length=$data_length"] = Dict{String, Any}()
+            ce_values["dim=$dim"]["data_length=$data_length"] = Dict{String, Dict}()
             ts = data["τ$dim"][1:data_length]
             for m in ms
-                d = dictsrv(Dict{Int, Vector{Float64}}())
-                Threads.@threads for τ in collect(τs)
+                d = dictsrv(Dict{String, Vector{Float64}}())
+                Threads.@threads for τ in τs
                     est = SymbolicPermutation(; m, τ)
                     entropy, complexity = entropy_stat_complexity(est, ts)
-                    d[τ]  = [entropy,  complexity]
+                    d["τ$τ"]  = [entropy,  complexity]
                 end
                 ce_values["dim=$dim"]["data_length=$data_length"]["m=$m"] = d()
             end
@@ -81,13 +80,13 @@ function surrogate_complexity_entropy(
     )
     loaded_file = wload(filename)
     x = loaded_file["data"]
-    surrogate_ce = Dict{String, Any}()
+    surrogate_ce = Dict{String, Dict}()
     for n in 1:num_surrogates
-        surrogate_ce["n$n"] = Dict{String, Any}()
+        surrogate_ce["n$n"] = Dict{String, Dict}()
         @showprogress for dim in dims
             for data_length in lengths
                 sur = surrogate(x["τ$dim"][1:data_length], RandomFourier(true))
-                data = Dict{String, Any}("τ$dim"=>sur)
+                data = Dict{String, AbstractVector}("τ$dim"=>sur)
                 complexity_entropy!(
                     data;
                     ms, τs, lengths=[data_length], dims=[dim], ce_values=surrogate_ce["n$n"]
@@ -95,7 +94,14 @@ function surrogate_complexity_entropy(
             end
         end
     end
-    return Dict("data"=>surrogate_ce, "simulation_parameters"=>loaded_file["parameters"], "parameters"=>@strdict(kwargs...))
+    parameters = @strdict(
+        num_surrogates,
+        ms,
+        τs,
+        lengths,
+        dims
+        )
+    return Dict("data"=>surrogate_ce, "simulation_parameters"=>loaded_file["parameters"], "parameters"=>parameters)
 end
 
 function surrogate_complexity_entropy(config::NamedTuple)
