@@ -75,7 +75,7 @@ function surrogate_complexity_entropy(config::NamedTuple)
             surrogate_ce["n=$n"]["dim=$dim"] = Dict{String, Dict}()
             for data_length in lengths
                 surrogate_ce["n=$n"]["dim=$dim"]["data_length=$data_length"] = Dict{String, Dict}()
-                sur = surrogate(data["dim$dim"][1:data_length], RandomFourier(true))
+                sur = surrogate(data["dim=$dim"][1:data_length], RandomFourier(true))
                 complexity_entropy!(
                     sur;
                     ms, τs, ce_values=surrogate_ce["n$n"]["dim=$dim"]["data_length=$data_length"]
