@@ -1,8 +1,6 @@
 using DrWatson
 @quickactivate
 
-using ProgressMeter
-
 include(scriptsdir("calc_complexity_entropy.jl"))
 include(scriptsdir("simulate_generalized_henon.jl"))
 
@@ -20,7 +18,7 @@ config = (
     ms=[3, 4, 5, 6, 7],
     τs=collect(1:50),
     lengths=10 .^(3:6),
-    dims=collect(1:50),
+    dims=collect(2:50),
     simulation_parameters=simulation_config,
     data_producing_function=simulate_generalized_henon
 )

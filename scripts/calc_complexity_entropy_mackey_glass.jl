@@ -1,8 +1,6 @@
 using DrWatson
 @quickactivate
 
-using ProgressMeter
-
 include(scriptsdir("calc_complexity_entropy.jl"))
 include(scriptsdir("simulate_mackey_glass.jl"))
 
