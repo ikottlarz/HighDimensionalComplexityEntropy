@@ -1,6 +1,6 @@
 using DrWatson
 @quickactivate "2023-01-19_JuliaSimulations"
-using DynamicalSystems
+using DynamicalSystems, DifferentialEquations
 using ProgressMeter
 
 function simulate_lorenz96(config::NamedTuple)
