@@ -1,6 +1,7 @@
 using DrWatson
 @quickactivate
 
+include(srcdir("git_helpers.jl"))
 include(scriptsdir("calc_complexity_entropy.jl"))
 include(scriptsdir("simulate_generalized_henon.jl"))
 
@@ -10,7 +11,11 @@ simulation_config = (
     Dmax = 50,
     N = 1000000,
     Ttr = 1000,
-    commit_hash = gitdescribe() # get current commit id to generate new hash if it differs
+    commit_hash = last_modifying_commit(
+        scriptsdir("simulate_generalized_henon.jl"),
+        srcdir("git_helpers.jl"),
+        srcdir("henon.jl")
+    )
 )
 
 config = (
@@ -20,7 +25,12 @@ config = (
     lengths=10 .^(3:6),
     dims=collect(2:50),
     simulation_parameters=simulation_config,
-    data_producing_function=simulate_generalized_henon
+    data_producing_function=simulate_generalized_henon,
+    commit_hash=last_modifying_commit(
+        srcdir("complexity_entropy.jl"),
+        scriptsdir("calc_complexity_entropy.jl"),
+        projectdir(PROGRAM_FILE)
+    )
 )
 
 data, filename = produce_or_load(

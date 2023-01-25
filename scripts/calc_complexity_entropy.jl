@@ -35,7 +35,7 @@ function complexity_entropy!(
 end
 
 function complexity_entropy(config::NamedTuple)
-    @unpack filename_prefix, τs, ms, dims, lengths, simulation_parameters, data_producing_function = config
+    @unpack filename_prefix, τs, ms, dims, lengths, simulation_parameters, data_producing_function, commit_hash = config
     data, _ = produce_or_load(
         data_producing_function,
         simulation_parameters,
@@ -60,7 +60,7 @@ function complexity_entropy(config::NamedTuple)
 end
 
 function surrogate_complexity_entropy(config::NamedTuple)
-    @unpack filename_prefix, τs, ms, dims, lengths, num_surrogates, simulation_parameters, data_producing_function = config
+    @unpack filename_prefix, τs, ms, dims, lengths, num_surrogates, simulation_parameters, data_producing_function, commit_hash = config
     data, _ = produce_or_load(
         data_producing_function,
         simulation_parameters,
