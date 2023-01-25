@@ -15,8 +15,7 @@ simulation_config = (
     Dmax = 50,
     commit_hash = last_modifying_commit(
         scriptsdir("simulate_lorenz96.jl"),
-        srcdir("git_helpers.jl"),
-        srcdir("lorenz96.jl")
+        srcdir("git_helpers.jl")
     )
 )
 
