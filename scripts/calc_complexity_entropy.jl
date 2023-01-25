@@ -23,6 +23,7 @@ function complexity_entropy!(
     τs::AbstractVector{Int},
     ce_values::Dict{String, Dict}
     )
+    @assert ndims(time_series) == 1
     for m in ms
         d = dictsrv(Dict{String, Vector{Float64}}())
         Threads.@threads for τ in τs
@@ -76,6 +77,7 @@ function surrogate_complexity_entropy(config::NamedTuple)
             for data_length in lengths
                 surrogate_ce["n=$n"]["dim=$dim"]["data_length=$data_length"] = Dict{String, Dict}()
                 sur = surrogate(data["data"]["dim=$dim"][1:data_length], RandomFourier(true))
+                @assert ndims(sur) == 1
                 complexity_entropy!(
                     sur;
                     ms, τs, ce_values=surrogate_ce["n=$n"]["dim=$dim"]["data_length=$data_length"]
