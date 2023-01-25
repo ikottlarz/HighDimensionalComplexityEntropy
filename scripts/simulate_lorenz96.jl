@@ -6,7 +6,7 @@ using ProgressMeter
 function simulate_lorenz96(config::NamedTuple)
     @unpack reltol, abstol, Ttr, N, F, Δt, Dmax, commit_hash = config
     trajectories = Dict{String, Any}()
-    const diffeq = (
+    diffeq = (
         alg = Vern9(),
         reltol = reltol,
         abstol = abstol,
