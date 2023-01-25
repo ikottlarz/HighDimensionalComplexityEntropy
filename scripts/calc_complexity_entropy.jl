@@ -90,5 +90,5 @@ function surrogate_complexity_entropy(config::NamedTuple)
         lengths,
         dims
         )
-    return Dict("data"=>surrogate_ce, "simulation_parameters"=>loaded_file["parameters"], "parameters"=>parameters)
+    return Dict("data"=>surrogate_ce, "simulation_parameters"=>simulation_parameters, "parameters"=>parameters)
 end
