@@ -1,6 +1,18 @@
 using DrWatson
 @quickactivate
 
+
+function is_dirty(filenames...)
+    out = Pipe()
+    err = Pipe()
+    cmd = `git diff --quiet $(filename for filename in filenames)`
+    process = run(pipeline(ignorestatus(cmd), stdout=out, stderr=err))
+    close(out.in)
+    close(err.in)
+
+    Bool(process.exitcode)
+end
+
 """
     function last_modifying_commit(filenames...) -> githash
 
@@ -22,5 +34,9 @@ function last_modifying_commit(filenames...)
     # it is formated as "commit <commit-hash>, thus we split it
     # at the space to get the hash
     last_hash = split(commits[1])[2]
+    if is_dirty(filenames_list...)
+        last_hash *= "-dirty"
+        @warn "Some of the files used to generate the data are dirty!. Appending \"-dirty\" to commit id."
+    end
     return last_hash
 end
