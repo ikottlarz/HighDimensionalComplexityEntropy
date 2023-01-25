@@ -1,6 +1,7 @@
 using DrWatson
 @quickactivate
 
+include(srcdir("git_helpers.jl"))
 include(scriptsdir("calc_complexity_entropy.jl"))
 include(scriptsdir("simulate_lorenz96.jl"))
 
@@ -12,7 +13,11 @@ simulation_config = (
     F = 24.0,
     Δt = 0.02,
     Dmax = 50,
-    commit_hash = gitdescribe() # get current commit id to generate new hash if it differs
+    commit_hash = last_modifying_commit(
+        scriptsdir("simulate_lorenz96.jl"),
+        srcdir("git_helpers.jl"),
+        srcdir("lorenz96.jl")
+    )
 )
 
 config = (
@@ -22,7 +27,12 @@ config = (
     lengths=10 .^(3:6),
     dims=collect(4:50),
     simulation_parameters=simulation_config,
-    data_producing_function=simulate_lorenz96
+    data_producing_function=simulate_lorenz96,
+    commit_hash=last_modifying_commit(
+        srcdir("complexity_entropy.jl"),
+        scriptsdir("calc_complexity_entropy.jl"),
+        projectdir(PROGRAM_FILE)
+    )
 )
 
 data, filename = produce_or_load(
@@ -41,7 +51,12 @@ surrogate_config = (
     dims=collect(4:50),
     num_surrogates=50,
     simulation_parameters=simulation_config,
-    data_producing_function=simulate_lorenz96
+    data_producing_function=simulate_lorenz96,
+    commit_hash=last_modifying_commit(
+        srcdir("complexity_entropy.jl"),
+        scriptsdir("calc_complexity_entropy.jl"),
+        projectdir(PROGRAM_FILE)
+    )
 )
 
 surrogate_data, filename = produce_or_load(
