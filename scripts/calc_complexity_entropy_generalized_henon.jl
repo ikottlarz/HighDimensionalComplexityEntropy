@@ -49,7 +49,12 @@ surrogate_config = (
     dims=collect(2:50),
     num_surrogates=50,
     simulation_parameters=simulation_config,
-    data_producing_function=simulate_generalized_henon
+    data_producing_function=simulate_generalized_henon,
+    commit_hash=last_modifying_commit(
+        srcdir("complexity_entropy.jl"),
+        scriptsdir("calc_complexity_entropy.jl"),
+        projectdir(PROGRAM_FILE)
+    )
 )
 
 surrogate_data, filename = produce_or_load(
