@@ -1,4 +1,7 @@
-using OrdinaryDiffEq
+using OrdinaryDiffEq, FFTW
+using ProgressMeter
+
+include(srcdir("kuramoto_sivashinsky.jl"))
 # This code is basically taken from https://github.com/JuliaDynamics/NonlinearDynamicsTextbook,
 # the git repository belonging to the textbook "Nonlinear Dynamics - A Concise Introduction Interlaced with Code"
 # by George Datseris and Ulrich Parlitz (https://link.springer.com/book/10.1007/978-3-030-91032-7)
@@ -7,10 +10,10 @@ function simulate_kuramoto_sivashinsky(config)
     @unpack b_min, b_max, b_step, T, Δt, Δx = config
     saveat = 0:Δt:T
     trajectories = Dict{String, Any}()
-    for b in b_min:b_step:b_max
-        xs = range(0, b, step = dx) # space
+    @showprogress for b in b_min:b_step:b_max
+        xs = range(0, b, step = Δx) # space
         u0 = @. cos(xs) + 0.1*sin(xs/8) + 0.01*cos((2π/b)*xs)
-        ks = Vector(FFTW.rfftfreq(length(u0))/dx) # conjugate space (wavenumbers)
+        ks = Vector(FFTW.rfftfreq(length(u0))/Δx) # conjugate space (wavenumbers)
 
         forward_plan = FFTW.plan_rfft(u0)
         y0 = forward_plan * u0

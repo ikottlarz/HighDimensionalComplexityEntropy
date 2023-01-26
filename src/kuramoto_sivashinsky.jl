@@ -1,5 +1,4 @@
 using LinearAlgebra: mul!
-import FFTW
 
 function kse_spectral!(dy, y, p, t)
     forward_plan, inverse_plan, udummy, ydummy, k²_k⁴, ik2 = p
