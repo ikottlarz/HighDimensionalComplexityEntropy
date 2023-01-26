@@ -21,7 +21,7 @@ function significance_heatmap(system_config)
         for data_length in lengths
             # get original and surrogate values for combination of dim and data_length
             original_values = original["data"]["dim=$dim"]["data_length=$data_length"]
-            surrogate_values = Dict("n=$n" => surrogates["n=$n"]["dim=$dim"]["data_length=$data_length"] for n in 1:num_surrogates)
+            surrogate_values = Dict("n=$n" => surrogates["data"]["n=$n"]["dim=$dim"]["data_length=$data_length"] for n in 1:num_surrogates)
             # fill with NaN to immediately see if some values didn't get filled
             heatmaps["dim=$dim"]["data_length=$data_length"] = fill(NaN64, (length(ms), length(τs)))
             for (i, m) in enumerate(ms)
