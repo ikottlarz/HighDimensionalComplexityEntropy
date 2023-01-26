@@ -104,7 +104,8 @@ system_configs = Dict(
                 N=400000,
                 commit_hash = last_modifying_commit(
                     scriptsdir("simulate_kuramoto_sivashinsky.jl"),
-                    srcdir("git_helpers.jl")
+                    srcdir("git_helpers.jl"),
+                    srcdir("kuramoto_sivashinsky.jl")
                 )
             ),
             simulation_function=simulate_kuramoto_sivashinsky,
