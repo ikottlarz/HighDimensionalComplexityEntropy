@@ -21,7 +21,7 @@ simulation_config = (
     )
 )
 
-config = (
+analysis_config = (
     filename_prefix="mackey_glass",
     ms=[3, 4, 5, 6, 7],
     τs=collect(1:50),
@@ -32,7 +32,6 @@ config = (
     commit_hash=last_modifying_commit(
         srcdir("complexity_entropy.jl"),
         scriptsdir("calc_complexity_entropy.jl"),
-        projectdir(PROGRAM_FILE)
     )
 )
 
