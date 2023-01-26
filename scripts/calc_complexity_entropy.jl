@@ -36,13 +36,13 @@ function complexity_entropy!(
 end
 
 function complexity_entropy(config::NamedTuple)
-    @unpack filename_prefix, τs, ms, dims, lengths, simulation_parameters, data_producing_function, commit_hash = config
+    @unpack prefix, τs, ms, dims, lengths, simulation_parameters, simulation_function = config
     data, _ = produce_or_load(
-        data_producing_function,
+        simulation_function,
         simulation_parameters,
         datadir("sims");
         filename=hash,
-        prefix=filename_prefix
+        prefix=prefix
     )
     ce_values = Dict{String, Dict}()
     @showprogress for dim in dims
@@ -61,13 +61,13 @@ function complexity_entropy(config::NamedTuple)
 end
 
 function surrogate_complexity_entropy(config::NamedTuple)
-    @unpack filename_prefix, τs, ms, dims, lengths, num_surrogates, simulation_parameters, data_producing_function, commit_hash = config
+    @unpack prefix, τs, ms, dims, lengths, num_surrogates, simulation_parameters, simulation_function = config
     data, _ = produce_or_load(
-        data_producing_function,
+        simulation_function,
         simulation_parameters,
         datadir("sims");
         filename=hash,
-        prefix=filename_prefix
+        prefix=prefix
     )
     surrogate_ce = Dict{String, Dict}()
     for n in 1:num_surrogates
