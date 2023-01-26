@@ -4,7 +4,7 @@ using DynamicalSystems, DifferentialEquations
 using ProgressMeter
 
 function simulate_lorenz96(config::NamedTuple)
-    @unpack reltol, abstol, Ttr, N, F, Δt, Dmax, commit_hash = config
+    @unpack reltol, abstol, Ttr, N, F, Δt, Dmin, Dmax, commit_hash = config
     trajectories = Dict{String, Any}()
     diffeq = (
         alg = Vern9(),
@@ -12,7 +12,7 @@ function simulate_lorenz96(config::NamedTuple)
         abstol = abstol,
         maxiters = typemax(Int)
     )
-    @showprogress for D in 4:Dmax
+    @showprogress for D in Dmin:Dmax
         ds = Systems.lorenz96(D, range(0; length = D, step = 0.1); F)
         X = trajectory(ds, N*Δt; Δt, Ttr, diffeq)
 

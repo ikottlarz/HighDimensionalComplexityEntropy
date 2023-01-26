@@ -5,9 +5,9 @@ using ProgressMeter
 include(srcdir("henon.jl"))
 
 function simulate_generalized_henon(config::NamedTuple)
-    @unpack a, b, Dmax, N, Ttr = config
+    @unpack a, b, Dmax, N, Dmin, Ttr = config
     trajectories = Dict{String, Any}()
-    @showprogress for D in 2:Dmax
+    @showprogress for D in Dmin:Dmax
         u0 = zeros(D)
         ds = DiscreteDynamicalSystem(henons!, u0, [a, b], henons_jac!)
         X = trajectory(ds, N; Ttr = 1000)

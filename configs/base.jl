@@ -12,7 +12,6 @@ general_analysis_config = (
     ms=[3, 4, 5, 6, 7],
     τs=collect(1:50),
     lengths=10 .^(3:6),
-    dims=collect(1:50),
     commit_hash=last_modifying_commit(
         srcdir("complexity_entropy.jl"),
         scriptsdir("calc_complexity_entropy.jl")
@@ -35,6 +34,7 @@ system_configs = Dict(
                 γ = 1.,
                 n = 9.65,
                 max_τ = 50,
+                min_τ = 4,
                 Δt = 0.1,
                 t_sample = 0.2,
                 N = 1000000,
@@ -46,6 +46,7 @@ system_configs = Dict(
                 )
             ),
             simulation_function=simulate_mackey_glass,
+            dims=collect(4:50),
             general_analysis_config...
         ),
         significance_config=significance_config
@@ -57,6 +58,7 @@ system_configs = Dict(
                 a = 1.76,
                 b = 0.1,
                 Dmax = 50,
+                Dmin = 4,
                 N = 1000000,
                 Ttr = 1000,
                 commit_hash = last_modifying_commit(
@@ -66,6 +68,7 @@ system_configs = Dict(
                 )
             ),
             simulation_function=simulate_generalized_henon,
+            dims=collect(4:50),
             general_analysis_config...
         ),
         significance_config=significance_config
@@ -81,12 +84,14 @@ system_configs = Dict(
                 F = 24.0,
                 Δt = 0.02,
                 Dmax = 50,
+                Dmin = 4,
                 commit_hash = last_modifying_commit(
                     scriptsdir("simulate_lorenz96.jl"),
                     srcdir("git_helpers.jl")
                 )
             ),
             simulation_function=simulate_lorenz96,
+            dims=collect(4:50),
             general_analysis_config...
         ),
         significance_config=significance_config
@@ -109,6 +114,7 @@ system_configs = Dict(
                 )
             ),
             simulation_function=simulate_kuramoto_sivashinsky,
+            dims=collect(4:38),
             general_analysis_config...
         ),
         significance_config=significance_config

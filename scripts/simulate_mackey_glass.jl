@@ -8,7 +8,7 @@ include(srcdir("mackey_glass.jl"))
 function simulate_mackey_glass(config::NamedTuple)
     @unpack β, γ, n, max_τ, Δt, t_sample, N, Ttr, commit_hash = config
     trajectories = Dict{String, Any}()
-    @showprogress for τ in 1:max_τ
+    @showprogress for τ in min_τ:max_τ
         u0 = zeros(Int(τ/Δt))
         u0[1] = 1.
         p = β, γ, n, Δt
