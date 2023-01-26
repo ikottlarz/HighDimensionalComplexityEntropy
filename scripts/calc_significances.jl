@@ -12,8 +12,8 @@ from the distribution of surrogates.
 function significance_heatmap(system_config)
     @unpack analysis_config = system_config
     @unpack num_surrogates, τs, ms, lengths, dims, prefix = analysis_config
-    surrogates, _ = produce_or_load(surrogate_complexity_entropy, analysis_config, datadir("analysis"); filename=hash, prefix)
     original, _ = produce_or_load(complexity_entropy, analysis_config, datadir("analysis"); filename=hash, prefix)
+    surrogates, _ = produce_or_load(surrogate_complexity_entropy, analysis_config, datadir("analysis"); filename=hash, prefix="$(prefix)_surrogates")
 
     heatmaps = Dict{String, Dict}()
     for dim in dims
