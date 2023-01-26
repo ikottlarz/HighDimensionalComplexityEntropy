@@ -7,7 +7,7 @@ echo "#!/bin/bash" > "$gitdir/hpc/slurm_scripts/$fn.sh"
 echo "#SBATCH -p medium" >> "$gitdir/hpc/slurm_scripts/$fn.sh"
 echo "#SBATCH -c 50" >> "$gitdir/hpc/slurm_scripts/$fn.sh"
 echo "#SBATCH -t 200" >> "$gitdir/hpc/slurm_scripts/$fn.sh"
-echo "#SBATCH --mem-per-cpu 2G" >> "$gitdir/hpc/slurm_scripts/$fn.sh"
+echo "#SBATCH --mem-per-cpu 3G" >> "$gitdir/hpc/slurm_scripts/$fn.sh"
 echo "#SBATCH -o $gitdir/hpc/outputs/$fn.out" >> "$gitdir/hpc/slurm_scripts/$fn.sh"
 
 echo "julia -e 'using DrWatson; @quickactivate; using Pkg; Pkg.add(\"DifferentialEquations\")'" >> "$gitdir/hpc/slurm_scripts/$fn.sh"
