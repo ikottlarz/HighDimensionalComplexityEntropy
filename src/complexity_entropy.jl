@@ -8,7 +8,7 @@ using ComplexityMeasures, Distances
 
 Calculates the permutation entropy and statistical complexity according to Rosso et al (2007).
 """
-function entropy_stat_complexity(est::ProbabilitiesEstimator, x::AbstractVector{T}) where T<:Real
+function entropy_stat_complexity(est::ComplexityMeasures.ProbabilitiesEstimator, x::AbstractVector{T}) where T<:Real
     probs = ComplexityMeasures.probabilities(est, x)
     entropy = entropy_normalized(est, x)
     L = total_outcomes(est, x)
