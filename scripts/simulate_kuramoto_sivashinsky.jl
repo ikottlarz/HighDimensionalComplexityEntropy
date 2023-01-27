@@ -9,7 +9,7 @@ include(srcdir("kuramoto_sivashinsky.jl"))
 function simulate_kuramoto_sivashinsky(config)
     @unpack b_min, b_max, b_step, T, Δt, Δx = config
     saveat = 0:Δt:T
-    trajectories = Dict{String, Any}()
+    data = DataFrame(dim=Int[], trajectory=Vector{Float64}[])
     @showprogress for b in b_min:b_step:b_max
         xs = range(0, b, step = Δx) # space
         u0 = @. cos(xs) + 0.1*sin(xs/8) + 0.01*cos((2π/b)*xs)
@@ -29,7 +29,10 @@ function simulate_kuramoto_sivashinsky(config)
         sol = solve(prob, Vern9(); saveat, maxiters=typemax(Int))
         u = [inverse_plan*y for y in sol.u]
         U = hcat(u...)
-        trajectories["dim=$b"] = U[:, 1]
+        push!(data, Dict(:dim => b, :trajectory => U[:, 1]))
     end
-    return trajectories
+    return Dict(
+        "data" => data,
+        "parameters" => @strdict(b_min, b_max, b_step, T, Δt, Δx)
+    )
 end

@@ -21,7 +21,9 @@ function complexity_entropy!(
     time_series::AbstractVector{Float64};
     ms::AbstractVector{Int},
     τs::AbstractVector{Int},
-    ce_values::Dict{String, Dict}
+    data_length::Int64,
+    dim::Int64,
+    ce_values::DataFrame
     )
     @assert ndims(time_series) == 1
     for m in ms
@@ -31,29 +33,39 @@ function complexity_entropy!(
             entropy, complexity = entropy_stat_complexity(est, time_series)
             d["τ$τ"]  = [entropy,  complexity]
         end
-        ce_values["m=$m"] = d()
+        for τ in τs
+            push!(ce_values, Dict(
+                :m=>m,
+                :entropy=>d["τ$τ"][1],
+                :complexity=>d["τ$τ"][2],
+                :τ=>τ,
+                :data_length=>data_length,
+                :dim=>dim
+                )
+            )
+        end
     end
 end
 
 function complexity_entropy(config::NamedTuple)
     @unpack prefix, τs, ms, dims, lengths, simulation_parameters, simulation_function = config
-    data, _ = produce_or_load(
+    file, _ = produce_or_load(
         simulation_function,
         simulation_parameters,
         datadir("sims");
         filename=hash,
         prefix=prefix
     )
-    ce_values = Dict{String, Dict}()
+    data = file["data"]
+    ce_values = DataFrame(
+        dim=Int[], data_length=Int[], m=Int[], τ=Int[],
+        complexity=Float64[], entropy=Float64[]
+    )
     @showprogress for dim in dims
-        ce_values["dim=$dim"] = Dict{String, Dict}()
         for data_length in lengths
-            ce_values["dim=$dim"]["data_length=$data_length"] = Dict{String, Dict}()
-
             complexity_entropy!(
-                data["data"]["dim=$dim"][1:data_length];
-                ms, τs,
-                ce_values=ce_values["dim=$dim"]["data_length=$data_length"]
+                data[data.dim .== dim, :trajectory][1][1:data_length];
+                ms, τs, dim, data_length, ce_values
             )
         end
     end
@@ -62,25 +74,29 @@ end
 
 function surrogate_complexity_entropy(config::NamedTuple)
     @unpack prefix, τs, ms, dims, lengths, num_surrogates, simulation_parameters, simulation_function = config
-    data, _ = produce_or_load(
+    file, _ = produce_or_load(
         simulation_function,
         simulation_parameters,
         datadir("sims");
         filename=hash,
         prefix=prefix
     )
-    surrogate_ce = Dict{String, Dict}()
+    data = file["data"]
+    ce_values = DataFrame(
+        dim=Int[], data_length=Int[], m=Int[], τ=Int[],
+        complexity=Float64[], entropy=Float64[]
+    )
     for n in 1:num_surrogates
-        surrogate_ce["n=$n"] = Dict{String, Dict}()
         @showprogress for dim in dims
-            surrogate_ce["n=$n"]["dim=$dim"] = Dict{String, Dict}()
             for data_length in lengths
-                surrogate_ce["n=$n"]["dim=$dim"]["data_length=$data_length"] = Dict{String, Dict}()
-                sur = surrogate(data["data"]["dim=$dim"][1:data_length], RandomFourier(true))
+                sur = surrogate(
+                    data[data.dim .== dim, :trajectory][1][1:data_length],
+                    RandomFourier(true)
+                )
                 @assert ndims(sur) == 1
                 complexity_entropy!(
                     sur;
-                    ms, τs, ce_values=surrogate_ce["n=$n"]["dim=$dim"]["data_length=$data_length"]
+                    ms, τs, ce_values, dim, data_length
                 )
             end
         end
@@ -91,6 +107,10 @@ function surrogate_complexity_entropy(config::NamedTuple)
         τs,
         lengths,
         dims
-        )
-    return Dict("data"=>surrogate_ce, "simulation_parameters"=>simulation_parameters, "parameters"=>parameters)
+    )
+    return Dict(
+        "data"=>ce_values,
+        "simulation_parameters"=>simulation_parameters,
+        "parameters"=>parameters
+    )
 end

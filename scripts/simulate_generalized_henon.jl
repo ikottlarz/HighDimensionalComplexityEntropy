@@ -6,12 +6,12 @@ include(srcdir("henon.jl"))
 
 function simulate_generalized_henon(config::NamedTuple)
     @unpack a, b, Dmax, N, Dmin, Ttr = config
-    trajectories = Dict{String, Any}()
+    data = DataFrame(dim=Int[], trajectory=Vector{Float64}[])
     @showprogress for D in Dmin:Dmax
         u0 = zeros(D)
         ds = DiscreteDynamicalSystem(henons!, u0, [a, b], henons_jac!)
-        X = trajectory(ds, N; Ttr = 1000)
-        trajectories["dim=$D"] = hcat(X[:, 1]...)
+        X = trajectory(ds, N; Ttr = Ttr)
+        push!(data, Dict(:dim => D, :trajectory => X[:, 1]))
     end
-    return Dict("data"=>trajectories, "parameters"=>@strdict(a, b, N, Ttr))
+    return Dict("data"=>data, "parameters"=>@strdict(a, b, N, Ttr))
 end

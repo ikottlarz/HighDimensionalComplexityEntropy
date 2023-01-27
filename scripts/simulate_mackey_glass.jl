@@ -1,13 +1,13 @@
 using DrWatson
 @quickactivate "2023-01-19_JuliaSimulations"
-using DynamicalSystems
+using DynamicalSystems, DataFrames
 using ProgressMeter
 
 include(srcdir("mackey_glass.jl"))
 
 function simulate_mackey_glass(config::NamedTuple)
     @unpack β, γ, n, max_τ, min_τ, Δt, t_sample, N, Ttr = config
-    trajectories = Dict{String, Any}()
+    data = DataFrame(dim=Int[], trajectory=Vector{Float64}[])
     @showprogress for τ in min_τ:max_τ
         u0 = zeros(Int(τ/Δt))
         u0[1] = 1.
@@ -19,7 +19,7 @@ function simulate_mackey_glass(config::NamedTuple)
 
         X = X[1:steps_per_sample:end, 1]
 
-        trajectories["dim=$τ"] = X
+        push!(data, Dict(:dim => τ, :trajectory => X))
     end
-    return Dict("data"=>trajectories, "parameters"=>@strdict(β, γ, n, Δt, N, Ttr, t_sample))
+    return Dict("data"=>data, "parameters"=>@strdict(β, γ, n, Δt, N, Ttr, t_sample))
 end
