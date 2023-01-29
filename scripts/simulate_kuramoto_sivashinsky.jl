@@ -29,7 +29,8 @@ function simulate_kuramoto_sivashinsky(config)
         sol = solve(prob, Vern9(); saveat, maxiters=typemax(Int))
         u = [inverse_plan*y for y in sol.u]
         U = hcat(u...)
-        push!(data, Dict(:dim => b, :trajectory => U[:, 1]))
+        @show size(U)
+        push!(data, Dict(:dim => b, :trajectory => U[1, :]))
     end
     return Dict(
         "data" => data,
