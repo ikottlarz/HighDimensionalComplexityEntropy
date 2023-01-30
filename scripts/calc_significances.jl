@@ -20,7 +20,7 @@ function significance_heatmap(system_config)
     original = original_file["data"]
     surrogates = surrogate_file["data"]
 
-    heatmaps = DataFrame(dim=Int[], data_length=Int[], heatmap=Matrix{Float64})
+    heatmaps = DataFrame(dim=Int[], data_length=Int[], heatmap=Matrix{Float64}[])
     @showprogress for dim in dims
         for data_length in lengths
             # fill with NaN to immediately see if some values didn't get filled
