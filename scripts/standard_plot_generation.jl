@@ -13,9 +13,11 @@ function standard_figure(; cbar_label::String, cbar_limits::Tuple)
         )
     )
     fig = Figure(resolution=(800, 900))
-    ga = fig[1:8, 1:2] = GridLayout()
-    ca = fig[9, 1] = GridLayout()
-    la = fig[9, 2] = GridLayout()
+    ga = fig[1:8, 2:3] = GridLayout()
+    ca = fig[10, 2] = GridLayout()
+    la = fig[10, 3] = GridLayout()
+    ylabel = "complexity"
+    xlabel = "entropy"
     lorenz_96 = Axis(ga[1, 1], title="Lorenz-96")
     generalized_henon = Axis(ga[1, 2], title="Generalized Henon")
     mackey_glass = Axis(ga[2, 1], title="Mackey-Glass")
@@ -26,6 +28,9 @@ function standard_figure(; cbar_label::String, cbar_limits::Tuple)
         vertical=false, label = cbar_label,
         flipaxis=false
     )
+
+    Label(fig[1:8, 1], ylabel, rotation=pi/2)
+    Label(fig[9, 2:3], xlabel)
 
     orig_marker = [
         MarkerElement(color=:black, marker=:circle)
@@ -111,6 +116,13 @@ fixed_quantities = Dict(
     ),
 )
 
+cbar_labels = Dict(
+    "dims" => "dimension",
+    "lengths" => "data length",
+    "ms" => "pattern length",
+    "τs" => "lag [\$\\delta t\$]"
+)
+
 const systems = [
     "lorenz_96",
     "generalized_henon",
@@ -130,7 +142,9 @@ for system in systems
 end
 
 for (quantity_name, quantity) in iterator_quantities
-    @unpack fig, lorenz_96, generalized_henon, mackey_glass, kuramoto_sivashinsky = standard_figure(cbar_label=quantity_name, cbar_limits=(minimum(quantity), maximum(quantity)))
+    @unpack fig, lorenz_96, generalized_henon, mackey_glass, kuramoto_sivashinsky = standard_figure(
+        cbar_label=cbar_labels[quantity_name],
+        cbar_limits=(minimum(quantity), maximum(quantity)))
     for (system_name, system_ax) in @strdict(lorenz_96, generalized_henon, mackey_glass, kuramoto_sivashinsky)
         @unpack originals, surrogates = data[system_name]
         filtered_originals = subset(
@@ -149,5 +163,5 @@ for (quantity_name, quantity) in iterator_quantities
             quantity_name
         )
     end
-    save(plotsdir("$quantity_name.pdf"), fig)
+    save(plotsdir("$quantity_name.eps"), fig)
 end
