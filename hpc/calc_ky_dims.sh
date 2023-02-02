@@ -18,6 +18,7 @@ done
 
 SCRIPTDIR="$(git rev-parse --show-toplevel)/hpc/slurm_scripts/"
 OUTDIR="$(git rev-parse --show-toplevel)/hpc/outputs/"
+GITDIR=`git rev-parse --show-toplevel`
 
 fn="`date +"%Y-%m-%d_%H-%M"`_calc_ky_dims_$system"
 
@@ -29,6 +30,6 @@ echo "#SBATCH --mem-per-cpu $mem" >> "$SCRIPTDIR/$fn.sh"
 echo "#SBATCH -o $OUTDIR/$fn.out" >> "$SCRIPTDIR/$fn.sh"
 
 echo "julia -e 'import Pkg; Pkg.add(\"DrWatson\"); using DrWatson; @quickactivate; Pkg.instantiate()'" >> "$SCRIPTDIR/$fn.sh"
-echo "julia -t 50 $gitdir/scripts/run_ky_calculations.jl --system=$system --env=$env" >> "$SCRIPTDIR/$fn.sh"
+echo "julia -t 50 $GITDIR/scripts/run_ky_calculations.jl --system=$system --env=$env" >> "$SCRIPTDIR/$fn.sh"
 
 sbatch -C scratch $SCRIPTDIR/$fn.sh
