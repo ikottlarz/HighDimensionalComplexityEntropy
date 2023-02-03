@@ -10,8 +10,9 @@ include(srcdir("kuramoto_sivashinsky_kj.jl"))
 function ky_dim_kuramoto_sivashinsky(config)
     @unpack simulation_parameters = config
     @unpack b_min, b_max, b_step, N, Δt, Δx = simulation_parameters
-    data = DataFrame(dim=Int[], ky_dim=Float64[], lyapunov_spectrum=Vector{Float64}[])
-    @showprogress for b in b_min:b_step:b_max
+    d = dictsrv(Dict{String, DataFrame}())
+    Threads.@threads for b in b_min:b_step:b_max
+        tmp_data = DataFrame(dim=Int[], ky_dim=Float64[], lyapunov_spectrum=Vector{Float64}[])
         if b == 20
             kport = 0.5
         else
@@ -43,14 +44,18 @@ function ky_dim_kuramoto_sivashinsky(config)
 
         Lambdas = kse_lyapunovs_spectral(integ, N, Δt)
         push!(
-            data,
+            tmp_data,
             Dict(
                 :dim => b,
                 :ky_dim => kaplanyorke_dim(Lambdas),
-                :lyapunov_spectrum=>Lambdas
+                :lyapunov_spectrum=>vcat(Lambdas...)
             )
         )
+        d["$b"] = tmp_data
+        println("finished for b = $b")
     end
+    collected_dict = d()
+    data = outerjoin(values(collected_dict)..., on=:dim)
     return Dict(
         "data" => data,
         "parameters" => @strdict(b_min, b_max, b_step, T, Δt, Δx)
