@@ -55,7 +55,14 @@ function ky_dim_kuramoto_sivashinsky(config)
         println("finished for b = $b")
     end
     collected_dict = d()
-    data = outerjoin(values(collected_dict)..., on=:dim)
+    data = outerjoin(
+        values(collected_dict)...,
+        on = [
+            :dim=>:dim,
+            :ky_dim=>:ky_dim,
+            :lyapunov_spectrum=>:lyapunov_spectrum
+        ]
+    )
     return Dict(
         "data" => data,
         "parameters" => @strdict(b_min, b_max, b_step, T, Δt, Δx)

@@ -31,6 +31,13 @@ function ky_dim_mackey_glass(config::NamedTuple)
         println("finished for τ = $τ")
     end
     collected_dict = d()
-    data = outerjoin(values(collected_dict)..., on=:dim)
+    data = outerjoin(
+        values(collected_dict)...,
+        on = [
+            :dim=>:dim,
+            :ky_dim=>:ky_dim,
+            :lyapunov_spectrum=>:lyapunov_spectrum
+        ]
+    )
     return Dict("data"=>data, "parameters"=>@strdict(β, γ, n, Δt, N, Ttr, t_sample))
 end
