@@ -183,7 +183,7 @@ system_configs = Dict(
                 T=1000000.0,
                 Δt=1.0, # sampling rate
                 Δx=0.2, # spatial discretization
-                N=1000000,
+                N=400000,
             ),
         )
     )
