@@ -42,17 +42,21 @@ function ky_dim_kuramoto_sivashinsky(config)
         prob = ODEProblem(kse_spectral_and_tangent!, w0, (0.0, 100.0), ksparams)
         integ = init(prob, Vern9(); save_everystep = false, internalnorm = tannorm, maxiters=typemax(Int))
 
-        Lambdas = kse_lyapunovs_spectral(integ, N, Δt)
-        push!(
-            tmp_data,
-            Dict(
-                :dim => b,
-                :ky_dim => kaplanyorke_dim(Lambdas),
-                :lyapunov_spectrum=>vcat(Lambdas...)
+        try
+            Lambdas = kse_lyapunovs_spectral(integ, N, Δt)
+            push!(
+                tmp_data,
+                Dict(
+                    :dim => b,
+                    :ky_dim => kaplanyorke_dim(Lambdas),
+                    :lyapunov_spectrum=>vcat(Lambdas...)
+                )
             )
-        )
-        d["$b"] = tmp_data
-        println("finished for b = $b")
+            d["$b"] = tmp_data
+            println("finished for b = $b")
+        catch e
+            println("Error $e for b = $b")
+        end
     end
     collected_dict = d()
     data = outerjoin(
