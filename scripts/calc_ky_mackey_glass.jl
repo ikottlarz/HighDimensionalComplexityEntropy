@@ -39,5 +39,5 @@ function ky_dim_mackey_glass(config::NamedTuple)
             :lyapunov_spectrum=>:lyapunov_spectrum
         ]
     )
-    return Dict("data"=>data, "parameters"=>@strdict(β, γ, n, Δt, N, Ttr, t_sample))
+    return Dict("data"=>data, "parameters"=>@strdict(β, γ, n, Δt, N, Ttr))
 end
