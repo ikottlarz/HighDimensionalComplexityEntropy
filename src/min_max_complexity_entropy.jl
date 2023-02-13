@@ -34,7 +34,7 @@ function maximum_complexity_entropy(est::ComplexityMeasures.ProbabilitiesEstimat
             for j in 1:L-i
                 p[j] = (1-prob_params[k]) / (L-i)
             end
-            p_k = Probabilities(p)
+            p_k = ComplexityMeasures.Probabilities(p)
             h = entropy(p_k) / max_entropy
             hs[i, k] = h
             dist = evaluate(JSDivergence(), p_k.p, fill(1.0/L, L))
@@ -64,7 +64,7 @@ This function is adapted from S. Sippels implementation in statcomp [^statcomp].
 """
 function minimum_complexity_entropy(est::ComplexityMeasures.ProbabilitiesEstimator; num::Int=1000)
 
-    @show L = total_outcomes(est, randn(10))
+    L = total_outcomes(est, randn(10))
     prob_params = linearpermissiverange(1/L; stop=1, length=num)
     hs = Float64[]
     cs = Float64[]
@@ -77,8 +77,8 @@ function minimum_complexity_entropy(est::ComplexityMeasures.ProbabilitiesEstimat
     for i in 1:num
         p_i = ones(L) * (1-prob_params[i]) / (L-1)
         p_i[1] = prob_params[i]
-        @show p_i = ComplexityMeasures.Probabilities(p_i)
-        @show h = entropy(p_i) / max_entropy
+        p_i = ComplexityMeasures.Probabilities(p_i)
+        h = entropy(p_i) / max_entropy
         push!(hs, h)
         dist = evaluate(JSDivergence(), p_i.p, fill(1.0/L, L))
         push!(cs, dist / max_dist * h)
