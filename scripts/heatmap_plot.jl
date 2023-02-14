@@ -79,15 +79,31 @@ end
 
 @unpack τs, ms = general_analysis_config
 
-dim = 38
+# hard coded bc part of the files are not produced with this git repo!!!
+hashes = Dict(
+    "kuramoto_sivashinsky" => "2102259424389999364",
+    "mackey_glass" => "2102259424389999364",
+    "lorenz96"=>"6585490124554813738",
+    "generalized_henon"=>"14298432815589460241"
+)
+
+ky_dim = 43
 data_length = 10^6
 @unpack fig, lorenz_96, generalized_henon, mackey_glass, kuramoto_sivashinsky = heatmap_figure()
 for (system_name, system_ax) in @strdict(lorenz_96, generalized_henon, mackey_glass, kuramoto_sivashinsky)
+    @unpack analysis_config = system_configs[system_name]
+    @unpack prefix = analysis_config
     file, _ = produce_or_load(significance_heatmap, system_configs[system_name], datadir("analysis"); filename=hash, prefix="$(system_name)_significances")
     data = file["data"]
-    heatmap_matrices = data[
-        (data.dim .== dim) .&
-        (data.data_length .== data_length),
+    ky_dims = wload(datadir("analysis/$(prefix)_ky_dims_$(hashes[prefix]).jld2"))
+    ky_data = ky_dims["data"]
+    joined = outerjoin(
+            data,
+            ky_data,
+            on=:dim)
+    heatmap_matrices = joined[
+        (isapprox.(joined.ky_dim, ky_dim, atol=.5)) .&
+        (joined.data_length .== data_length),
         :heatmap
     ]
     @assert length(heatmap_matrices) == 1
