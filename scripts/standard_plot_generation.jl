@@ -13,17 +13,36 @@ function box!(ax::Axis, xlims::NamedTuple, ylims::NamedTuple)
     @unpack low, high = ylims
     ylims = [low, high]
     linewidth = 3
-    lines!(ax, [xlims[1], xlims[1]], [ylims[1], ylims[2]]; color=:black, linewidth)
-    lines!(ax, [xlims[1], xlims[2]], [ylims[1], ylims[1]]; color=:black, linewidth)
-    lines!(ax, [xlims[1], xlims[2]], [ylims[2], ylims[2]]; color=:black, linewidth)
-    lines!(ax, [xlims[2], xlims[2]], [ylims[1], ylims[2]]; color=:black, linewidth)
+    lines!(ax, [xlims[1], xlims[1]], [ylims[1], ylims[2]]; color=:black, linewidth, overdraw=true)
+    lines!(ax, [xlims[1], xlims[2]], [ylims[1], ylims[1]]; color=:black, linewidth, overdraw=true)
+    lines!(ax, [xlims[1], xlims[2]], [ylims[2], ylims[2]]; color=:black, linewidth, overdraw=true)
+    lines!(ax, [xlims[2], xlims[2]], [ylims[1], ylims[2]]; color=:black, linewidth, overdraw=true)
+end
+
+function inset_ax!(ax::Axis, xlims::NamedTuple, ylims::NamedTuple, lower_left::Vector{Float64}, upper_right::Vector{Float64})
+
+    bbox = lift(ax.scene.camera.projectionview, ax.scene.px_area) do _, pxa
+        bl = Makie.project(ax.scene, Point2f(lower_left...)) + pxa.origin
+        tr = Makie.project(ax.scene, Point2f(upper_right...)) + pxa.origin
+        Rect2f(bl, tr - bl)
+    end
+
+    # inset
+    ins_ax = Axis(fig, bbox = bbox)
+    translate!(ins_ax.blockscene, 0, 0, 100)
+    xlims!(ins_ax; xlims...)
+    ylims!(ins_ax, ylims...)
+    hidedecorations!(ins_ax)
+
+    lines!(ax, [xlims[:high], upper_right[1]], [ylims[:low], lower_left[2]], color=:black)
+    lines!(ax, [xlims[:high], upper_right[1]], [ylims[:high], upper_right[2]], color=:black)
+    return ins_ax
 end
 
 function standard_figure(;
     cbar_label,
     cbar_limits::Tuple,
-    quantity::Symbol,
-    inset::Bool)
+    quantity::Symbol)
     set_theme!(
         Theme(
             colormap=:hawaii,
@@ -56,42 +75,6 @@ function standard_figure(;
     mackey_glass = Axis(ga[2, 1], title="Mackey-Glass")
     kuramoto_sivashinsky = Axis(ga[2, 2], title="Kuramoto-Sivashinsky")
 
-    if inset
-        lorenz_96_inset = Axis(
-            ga[1, 1];
-            inset_kwargs...
-        )
-        xlims!(lorenz_96_inset; inset_xlims_lorenz...)
-        ylims!(lorenz_96_inset; inset_ylims_lorenz...)
-        generalized_henon_inset = Axis(
-            ga[1, 2];
-            inset_kwargs...
-        )
-        xlims!(generalized_henon_inset; inset_xlims_henon...)
-        ylims!(generalized_henon_inset; inset_ylims_henon...)
-        box!(generalized_henon, inset_xlims_henon, inset_ylims_henon)
-        mackey_glass_inset = Axis(
-            ga[2, 1];
-            inset_kwargs...
-        )
-        xlims!(mackey_glass_inset; inset_xlims_mg...)
-        ylims!(mackey_glass_inset; inset_ylims_mg...)
-        box!(mackey_glass, inset_xlims_mg, inset_ylims_mg)
-
-        kuramoto_sivashinsky_inset = Axis(
-            ga[2, 2];
-            inset_kwargs...
-        )
-        xlims!(kuramoto_sivashinsky_inset; inset_xlims_ksiva...)
-        ylims!(kuramoto_sivashinsky_inset; inset_ylims_ksiva...)
-        box!(kuramoto_sivashinsky, inset_xlims_ksiva, inset_ylims_ksiva)
-
-        for ax in [lorenz_96_inset, generalized_henon_inset, mackey_glass_inset, kuramoto_sivashinsky_inset]
-            translate!(ax.blockscene, 0, 0, 10)
-            translate!(ax.scene, 0, 0, 9)
-            hidedecorations!(ax)
-        end
-    end
     Colorbar(
         ca[1, 1],
         limits=cbar_limits,
@@ -115,18 +98,6 @@ function standard_figure(;
         [L"original $ $", L"surrogates $ $"],
         framevisible=false
     )
-
-    if inset
-        return (
-            fig=fig,
-            lorenz_96=(ax=lorenz_96, ins=lorenz_96_inset),
-            generalized_henon=(ax=generalized_henon, ins=generalized_henon_inset),
-            mackey_glass=(ax=mackey_glass, ins=mackey_glass_inset),
-            kuramoto_sivashinsky=(ax=kuramoto_sivashinsky, ins=kuramoto_sivashinsky_inset),
-            ca=ca,
-            la=la
-        )
-    end
     return (
             fig=fig,
             lorenz_96=lorenz_96,
@@ -142,12 +113,11 @@ function plot_system!(
     ax::Union{Axis, NamedTuple},
     originals::DataFrame,
     surrogates::DataFrame,
-    iterator_quantity::Union{UnitRange, AbstractVector},
     iterator_quantity_name::String,
-    inset::Bool)
-    if inset
-        @unpack ax, ins = ax
-    end
+    inset::Bool,
+    inset_xlims=nothing,
+    inset_ylims=nothing,
+    inset_kwargs=nothing)
     scale = fix_quantities_for_plot[
         single_iterator_names[
             iterator_quantity_name
@@ -184,6 +154,15 @@ function plot_system!(
     ylims!(ax; low=min_c-.1c_span, high=max_c+.1c_span)
 
     if inset
+        @unpack lower_left, upper_right = inset_kwargs
+        x_l, y_l = lower_left
+        x_h, y_h = upper_right
+        ins = inset_ax!(
+            ax,
+            inset_xlims,
+            inset_ylims,
+            [min_h+x_l*h_span, min_c+y_l*c_span],
+            [max_h-x_h*h_span, max_c-y_h*c_span])
         scatter!(
             ins,
             originals[:, :entropy], originals[:, :complexity],
@@ -198,11 +177,6 @@ function plot_system!(
             lines!(ins, h_max, c_max, color=:black, linewidth=2)
         end
     end
-    # for val in iterator_quantity
-    #     val_surrogates = subset(
-    #         surrogates,
-    #         single_iterator_names[iterator_quantity_name] => x -> isapprox.(x, val, atol=.5)
-    #     )
     scatter!(
         ax,
         surrogates[:, :entropy], surrogates[:, :complexity],
@@ -219,6 +193,7 @@ function plot_system!(
             strokecolor=:black, strokewidth=0.5,
             colorrange=crange,
         )
+        box!(ax, inset_xlims, inset_ylims)
     end
     # end
 end

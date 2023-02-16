@@ -2,10 +2,28 @@ using DrWatson
 @quickactivate
 include(scriptsdir("standard_plot_generation.jl"))
 
-quantity_name = "lengths"
-quantity = lengths
+quantity_name = "τs"
+quantity = τs
 
-inset = false
+inset_kwargs = (
+    lower_left=[0.01, 0.01],
+    upper_right=[0.45, 0.45]
+)
+
+inset_xlims = Dict(
+    "lorenz_96" => (low=0.96, high=1.005),
+    "generalized_henon" => (low=0.985, high=1.005),
+    "mackey_glass" => (low=0.96, high=1.005),
+    "kuramoto_sivashinsky" => (low=0.96, high=1.005),
+)
+inset_ylims = Dict(
+    "lorenz_96" => (low=-0.005, high=0.05),
+    "generalized_henon" => (low=-0.005, high=0.035),
+    "mackey_glass" => (low=-0.005, high=0.05),
+    "kuramoto_sivashinsky" => (low=-0.005, high=0.05),
+)
+
+inset = true
 
 @unpack fig, lorenz_96, generalized_henon, mackey_glass, kuramoto_sivashinsky = standard_figure(
     ;
@@ -13,15 +31,12 @@ inset = false
     cbar_limits=fix_quantities_for_plot[
         single_iterator_names[quantity_name]
     ]["limits"],
-    quantity=single_iterator_names[quantity_name],
-    inset
+    quantity=single_iterator_names[quantity_name]
 )
 for (system_name, system_ax) in @strdict(lorenz_96, generalized_henon, mackey_glass, kuramoto_sivashinsky)
     fix_qs_copy = copy(fixed_quantities["functions"])
     delete!(fix_qs_copy, single_iterator_names[quantity_name])
-    if system_name == "generalized_henon"
-        fix_qs_copy[:τ] = τ -> τ .== 1
-    end
+
     @unpack originals, surrogates = data[system_name]
     filtered_originals = subset(
         originals,
@@ -35,10 +50,11 @@ for (system_name, system_ax) in @strdict(lorenz_96, generalized_henon, mackey_gl
         system_ax,
         filtered_originals,
         filtered_surrogates,
-        quantity,
-        quantity_name,
-        inset
+        "τs",
+        inset,
+        inset_xlims[system_name],
+        inset_ylims[system_name],
+        inset_kwargs
     )
 end
-
 wsave(plotsdir("$quantity_name.pdf"), fig)

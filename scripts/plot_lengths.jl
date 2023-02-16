@@ -2,8 +2,8 @@ using DrWatson
 @quickactivate
 include(scriptsdir("standard_plot_generation.jl"))
 
-quantity_name = "ms"
-quantity = ms
+quantity_name = "lengths"
+quantity = lengths
 
 inset = false
 
@@ -34,7 +34,7 @@ for (system_name, system_ax) in @strdict(lorenz_96, generalized_henon, mackey_gl
         system_ax,
         filtered_originals,
         filtered_surrogates,
-        "ms",
+        "lengths",
         inset,
     )
 end
