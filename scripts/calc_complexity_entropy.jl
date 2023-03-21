@@ -73,7 +73,7 @@ function complexity_entropy(config::NamedTuple)
 end
 
 function surrogate_complexity_entropy(config::NamedTuple)
-    @unpack prefix, τs, ms, dims, lengths, num_surrogates, simulation_parameters, simulation_function = config
+    @unpack prefix, τs, ms, dims, lengths, num_surrogates, surrogate_func, simulation_parameters, simulation_function = config
     file, _ = produce_or_load(
         simulation_function,
         simulation_parameters,
@@ -91,7 +91,7 @@ function surrogate_complexity_entropy(config::NamedTuple)
             for data_length in lengths
                 sur = surrogate(
                     data[data.dim .== dim, :trajectory][1][1:data_length],
-                    RandomFourier(true)
+                    surrogate_func
                 )
                 @assert ndims(sur) == 1
                 complexity_entropy!(
