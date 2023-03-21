@@ -1,19 +1,60 @@
 using DrWatson
 @quickactivate
 
+using ComplexityMeasures
 using CairoMakie
 
 include(projectdir("configs/base.jl"))
+include(srcdir("min_max_complexity_entropy.jl"))
+
+function box!(ax::Axis, xlims::NamedTuple, ylims::NamedTuple)
+    @unpack low, high = xlims
+    xlims = [low, high]
+    @unpack low, high = ylims
+    ylims = [low, high]
+    linewidth = 3
+    lines!(ax, [xlims[1], xlims[1]], [ylims[1], ylims[2]]; color=:black, linewidth, overdraw=true)
+    lines!(ax, [xlims[1], xlims[2]], [ylims[1], ylims[1]]; color=:black, linewidth, overdraw=true)
+    lines!(ax, [xlims[1], xlims[2]], [ylims[2], ylims[2]]; color=:black, linewidth, overdraw=true)
+    lines!(ax, [xlims[2], xlims[2]], [ylims[1], ylims[2]]; color=:black, linewidth, overdraw=true)
+end
+
+function inset_ax!(ax::Axis, xlims::NamedTuple, ylims::NamedTuple, lower_left::Vector{Float64}, upper_right::Vector{Float64})
+
+    bbox = lift(ax.scene.camera.projectionview, ax.scene.px_area) do _, pxa
+        bl = Makie.project(ax.scene, Point2f(lower_left...)) + pxa.origin
+        tr = Makie.project(ax.scene, Point2f(upper_right...)) + pxa.origin
+        Rect2f(bl, tr - bl)
+    end
+
+    # inset
+    ins_ax = Axis(fig, bbox = bbox)
+    translate!(ins_ax.blockscene, 0, 0, 100)
+    xlims!(ins_ax; xlims...)
+    ylims!(ins_ax, ylims...)
+    hidedecorations!(ins_ax)
+
+    lines!(ax, [xlims[:high], upper_right[1]], [ylims[:low], lower_left[2]], color=:black)
+    lines!(ax, [xlims[:high], upper_right[1]], [ylims[:high], upper_right[2]], color=:black)
+    return ins_ax
+end
 
 function standard_figure(;
-    cbar_label::String,
+    cbar_label,
     cbar_limits::Tuple,
-    quantity::Symbol,
-    fix_quantities_for_plot)
+    quantity::Symbol)
     set_theme!(
         Theme(
             colormap=:hawaii,
-            markersize=20
+            markersize=20,
+            fontsize=27,
+            Axis = (
+                titlefont = projectdir("cmu/cmunrm.ttf"),
+                xlabelfont=projectdir("cmu/cmunrm.ttf"),
+                ylabelfont=projectdir("cmu/cmunrm.ttf"),
+                xticklabelfont=projectdir("cmu/cmunrm.ttf"),
+                yticklabelfont=projectdir("cmu/cmunrm.ttf"),
+            )
         )
     )
     # copy info dict and delete fix value of quantity that will
@@ -21,26 +62,24 @@ function standard_figure(;
     info_dict = copy(fixed_quantities["values"])
     delete!(info_dict, quantity)
 
-    fig = Figure(resolution=(800, 900))
+    fig = Figure(
+        resolution=(800, 900),
+        )
     ga = fig[1:8, 2:3] = GridLayout()
     ca = fig[10, 2] = GridLayout()
     la = fig[10, 3] = GridLayout()
-    ylabel = "complexity"
-    xlabel = "entropy"
-    lorenz_96 = Axis(ga[1, 1], title="Lorenz-96")
-    generalized_henon = Axis(ga[1, 2], title="Generalized Henon")
+    ylabel = L"complexity $C_{JS}$"
+    xlabel = L"entropy $H_S$"
+    lorenz_96 = Axis(ga[1, 1]; title="Lorenz-96")
+    generalized_henon = Axis(ga[1, 2], title="Generalized Hénon")
     mackey_glass = Axis(ga[2, 1], title="Mackey-Glass")
     kuramoto_sivashinsky = Axis(ga[2, 2], title="Kuramoto-Sivashinsky")
-    linkaxes!(lorenz_96, generalized_henon, mackey_glass, kuramoto_sivashinsky)
+
     Colorbar(
         ca[1, 1],
-        colormap=cgrad(
-            :hawaii,
-            scale=fix_quantities_for_plot[quantity]["scale"]),
         limits=cbar_limits,
         vertical=false, label = cbar_label,
-        flipaxis=false,
-        scale=fix_quantities_for_plot[quantity]["scale"]
+        flipaxis=false, ticklabelfont=projectdir("cmu/cmunrm.ttf")
     )
 
     Label(fig[1:8, 1], ylabel, rotation=pi/2)
@@ -56,97 +95,127 @@ function standard_figure(;
     Legend(
         la[1, 1],
         [orig_marker, sur_marker],
-        ["original", "surrogates"],
+        [L"original $ $", L"surrogates $ $"],
         framevisible=false
     )
-
-    meta_layout = fig[1:10, 4] = GridLayout()
-    for (i, (q, value)) in enumerate(info_dict)
-        Colorbar(
-            meta_layout[i, 1],
-            limits=fix_quantities_for_plot[q]["limits"],
-            label=fix_quantities_for_plot[q]["label"],
-            colormap=cgrad(
-                :grayC,
-                scale=fix_quantities_for_plot[q]["scale"]
-            ),
-            scale=fix_quantities_for_plot[q]["scale"]
-        )
-        cb_ax = Axis(meta_layout[i, 1])
-        ylims!(cb_ax, fix_quantities_for_plot[q]["limits"])
-        hidedecorations!(cb_ax)
-        lines!(
-            cb_ax,
-            [0, 1],
-            ones(2)*value,
-            linewidth=5,
-            color=ones(2)*value,
-            colormap=cgrad(
-                :hawaii,
-                scale = fix_quantities_for_plot[q]["scale"]
-            ),
-            colorrange=fix_quantities_for_plot[q]["limits"],
-        )
-    end
-
     return (
-        fig=fig,
-        lorenz_96=lorenz_96,
-        generalized_henon=generalized_henon,
-        mackey_glass=mackey_glass,
-        kuramoto_sivashinsky=kuramoto_sivashinsky,
-        ca=ca,
-        la=la
-    )
+            fig=fig,
+            lorenz_96=lorenz_96,
+            generalized_henon=generalized_henon,
+            mackey_glass=mackey_glass,
+            kuramoto_sivashinsky=kuramoto_sivashinsky,
+            ca=ca,
+            la=la
+        )
 end
 
 function plot_system!(
-    ax::Axis,
+    ax::Union{Axis, NamedTuple},
     originals::DataFrame,
     surrogates::DataFrame,
-    iterator_quantity::Union{UnitRange, AbstractVector},
-    iterator_quantity_name::String)
+    iterator_quantity_name::String,
+    inset::Bool,
+    inset_xlims=nothing,
+    inset_ylims=nothing,
+    inset_kwargs=nothing)
+    scale = fix_quantities_for_plot[
+        single_iterator_names[
+            iterator_quantity_name
+        ]
+    ]["scale"]
+    crange = fix_quantities_for_plot[
+        single_iterator_names[
+            iterator_quantity_name
+        ]
+    ]["limits"]
+    if iterator_quantity_name != "ms"
+        est = ComplexityMeasures.SymbolicPermutation(; m=fixed_quantities["values"][:m]
+        )
+        h_min, c_min = minimum_complexity_entropy(est)
+        h_max, c_max = maximum_complexity_entropy(est)
+        lines!(ax, h_min, c_min, color=:black, linewidth=2)
+        lines!(ax, h_max, c_max, color=:black, linewidth=2)
+    end
     scatter!(
         ax,
         originals[:, :entropy], originals[:, :complexity],
-        marker=:circle, color=originals[:,
-        single_iterator_names[iterator_quantity_name]],
+        marker=:circle, color=scale.(originals[:,
+        single_iterator_names[iterator_quantity_name]]),
         strokecolor=:black, strokewidth=0.5,
-        colorrange=(minimum(iterator_quantity), maximum(iterator_quantity))
+        colorrange=crange,
     )
-    for val in iterator_quantity
-        val_surrogates = subset(
-            surrogates,
-            single_iterator_names[iterator_quantity_name] => x -> x .== val
-        )
-        scatter!(
+    min_h = minimum([originals[:, :entropy]..., surrogates[:, :entropy]...])
+    min_c = minimum([originals[:, :complexity]..., surrogates[:, :complexity]...])
+    max_h = maximum([originals[:, :entropy]..., surrogates[:, :entropy]...])
+    max_c = maximum([originals[:, :complexity]..., surrogates[:, :complexity]...])
+    h_span = max_h-min_h
+    c_span = max_c-min_c
+    xlims!(ax; low=min_h-.1h_span, high=max_h+.1h_span)
+    ylims!(ax; low=min_c-.1c_span, high=max_c+.1c_span)
+
+    if inset
+        @unpack lower_left, upper_right = inset_kwargs
+        x_l, y_l = lower_left
+        x_h, y_h = upper_right
+        ins = inset_ax!(
             ax,
-            val_surrogates[:, :entropy], val_surrogates[:, :complexity],
-            color=fill(val, size(val_surrogates[:, :entropy])), marker=:dtriangle,
+            inset_xlims,
+            inset_ylims,
+            [min_h+x_l*h_span, min_c+y_l*c_span],
+            [max_h-x_h*h_span, max_c-y_h*c_span])
+        scatter!(
+            ins,
+            originals[:, :entropy], originals[:, :complexity],
+            marker=:circle,
+            color=scale.(originals[:,
+            single_iterator_names[iterator_quantity_name]]),
             strokecolor=:black, strokewidth=0.5,
-            colorrange=(minimum(iterator_quantity), maximum(iterator_quantity))
+            colorrange=crange,
         )
+        if iterator_quantity_name != "ms"
+            lines!(ins, h_min, c_min, color=:black, linewidth=2)
+            lines!(ins, h_max, c_max, color=:black, linewidth=2)
+        end
     end
+    scatter!(
+        ax,
+        surrogates[:, :entropy], surrogates[:, :complexity],
+        color=scale.(surrogates[:, single_iterator_names[iterator_quantity_name]]), marker=:dtriangle,
+        strokecolor=:black, strokewidth=0.5,
+        colorrange=crange,
+    )
+    if inset
+        scatter!(
+            ins,
+            surrogates[:, :entropy], surrogates[:, :complexity],
+            color=scale.(surrogates[:, single_iterator_names[iterator_quantity_name]]),
+            marker=:dtriangle,
+            strokecolor=:black, strokewidth=0.5,
+            colorrange=crange,
+        )
+        box!(ax, inset_xlims, inset_ylims)
+    end
+    # end
 end
 
 @unpack τs, ms, lengths = general_analysis_config
-dims = 1:50
+dims = 1:.1:50
 iterator_quantities = @strdict(τs, ms, lengths, dims)
 single_iterator_names = Dict(
     "τs" => :τ,
     "ms" => :m,
     "lengths" => :data_length,
-    "dims" => :dim
+    "dims" => :ky_dim
 )
 fixed_quantities = Dict(
     "functions" => Dict(
-        :dim => dim -> dim .== 38,
+        :ky_dim => x -> isapprox.(x, 43, atol=.5),
         :m => m -> m .== 6,
         :data_length => data_length -> data_length .== 10^6,
         :τ => τ -> τ .== 10,
     ),
     "values" => Dict(
-        :dim => 38,
+        :ky_dim => 43,
         :m => 6,
         :data_length => 10^6,
         :τ => 10
@@ -154,19 +223,19 @@ fixed_quantities = Dict(
 )
 
 fix_quantities_for_plot = Dict(
-    :dim => Dict(
+    :ky_dim => Dict(
         "limits" => (1, 50),
         "label" => L"$\Delta^{(KY)}$",
         "scale" => identity
     ),
     :m => Dict(
         "limits" => (3, 7),
-        "label" => "pattern length",
+        "label" => L"pattern length $m$",
         "scale" => identity
     ),
     :data_length => Dict(
-        "limits" => (10^3, 10^6),
-        "label" => "data length",
+        "limits" => (3, 6),
+        "label" => L"data length $ $",
         "scale" => log10
     ),
     :τ => Dict(
@@ -177,57 +246,43 @@ fix_quantities_for_plot = Dict(
 )
 
 cbar_labels = Dict(
-    "dims" => "dimension",
-    "lengths" => "data length",
-    "ms" => "pattern length",
-    "τs" => "lag [\$\\delta t\$]"
+    "dims" => L"$\Delta^{(KY)}$",
+    "lengths" => L"log(data length) $ $",
+    "ms" => L"pattern length $m$",
+    "τs" => L"lag [$\delta t$]"
 )
 
-const systems = [
+systems = [
     "lorenz_96",
     "generalized_henon",
     "mackey_glass",
     "kuramoto_sivashinsky"
 ]
+# hard coded bc part of the files are not produced with this git repo!!!
+hashes = Dict(
+    "kuramoto_sivashinsky" => "2102259424389999364",
+    "mackey_glass" => "2102259424389999364",
+    "lorenz96"=>"6585490124554813738",
+    "generalized_henon"=>"14298432815589460241"
+)
+
 data = Dict{String, NamedTuple}()
 for system in systems
     @unpack analysis_config = system_configs[system]
     @unpack num_surrogates, prefix = analysis_config
     original_file, _ = produce_or_load(complexity_entropy, analysis_config, datadir("analysis"); filename=hash, prefix)
     surrogate_file, _ = produce_or_load(surrogate_complexity_entropy, analysis_config, datadir("analysis"); filename=hash, prefix="$(prefix)_surrogates")
+    ky_dims = wload(datadir("analysis/$(prefix)_ky_dims_$(hashes[prefix]).jld2"))
+    ky_data = ky_dims["data"]
     data[system] = (
-        originals = original_file["data"],
-        surrogates = surrogate_file["data"]
+        originals = outerjoin(
+            original_file["data"],
+            ky_data,
+            on=:dim),
+        surrogates = outerjoin(
+            surrogate_file["data"],
+            ky_data,
+            on=:dim
+        )
     )
-end
-
-for (quantity_name, quantity) in iterator_quantities
-    @unpack fig, lorenz_96, generalized_henon, mackey_glass, kuramoto_sivashinsky = standard_figure(
-        ;
-        cbar_label=cbar_labels[quantity_name],
-        cbar_limits=(minimum(quantity), maximum(quantity)),
-        quantity=single_iterator_names[quantity_name],
-        fix_quantities_for_plot
-    )
-    for (system_name, system_ax) in @strdict(lorenz_96, generalized_henon, mackey_glass, kuramoto_sivashinsky)
-        fix_qs_copy = copy(fixed_quantities["functions"])
-        delete!(fix_qs_copy, single_iterator_names[quantity_name])
-        @unpack originals, surrogates = data[system_name]
-        filtered_originals = subset(
-            originals,
-            fix_qs_copy...
-        )
-        filtered_surrogates = subset(
-            surrogates,
-            fix_qs_copy...
-        )
-        plot_system!(
-            system_ax,
-            filtered_originals,
-            filtered_surrogates,
-            quantity,
-            quantity_name
-        )
-    end
-    wsave(plotsdir("$quantity_name.eps"), fig)
 end
