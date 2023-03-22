@@ -64,8 +64,8 @@ function significance_heatmap(system_config)
                         (original.τ .== τ),
                         [:entropy, :complexity]
                     ]
-                    ft_surrogate_dist_vec, ft_sp_matrix = surrogate_dists(ft_surrogates)
-                    aaft_surrogate_dist_vec, aaft_sp_matrix = surrogate_dists(aaft_surrogates)
+                    ft_surrogate_dist_vec, ft_sp_matrix = surrogate_dists(ft_surrogates; dim, data_length, m, τ)
+                    aaft_surrogate_dist_vec, aaft_sp_matrix = surrogate_dists(aaft_surrogates; dim, data_length, m, τ)
 
                     truth_point = hcat(
                         original_value[:, :entropy],
