@@ -5,7 +5,7 @@ using HypothesisTests, Distances
 using LinearAlgebra: triu
 using ProgressMeter
 
-function surrogate_dists(surrogates)
+function surrogate_dists(surrogates; dim, data_length, m, τ)
     surrogate_values = surrogates[
         (surrogates.dim .== dim) .&
         (surrogates.data_length .== data_length) .&
