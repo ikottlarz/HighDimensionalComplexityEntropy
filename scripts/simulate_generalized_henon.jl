@@ -9,8 +9,9 @@ function simulate_generalized_henon(config::NamedTuple)
     data = DataFrame(dim=Int[], trajectory=Vector{Float64}[])
     @showprogress for D in Dmin:Dmax
         u0 = zeros(D)
-        ds = DiscreteDynamicalSystem(henons!, u0, [a, b], henons_jac!)
-        X = trajectory(ds, N; Ttr = Ttr)
+        ds = DiscreteDynamicalSystem(henons!, u0, [a, b])
+        tds = TangentDynamicalSystem(ds; J=henons_jac!)
+        X, _ = trajectory(tds, N; Ttr = Ttr)
         push!(data, Dict(:dim => D, :trajectory => X[:, 1]))
     end
     return Dict("data"=>data, "parameters"=>@strdict(a, b, N, Ttr))

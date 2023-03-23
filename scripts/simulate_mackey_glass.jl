@@ -12,10 +12,11 @@ function simulate_mackey_glass(config::NamedTuple)
         u0 = zeros(Int(τ/Δt))
         u0[1] = 1.
         p = β, γ, n, Δt
-        ds = DiscreteDynamicalSystem(mackey_glass!, u0, p, mackey_glass_jac!)
+        ds = DiscreteDynamicalSystem(mackey_glass!, u0, p)
+        tds = TangentDynamicalSystem(ds; J=mackey_glass_jac!)
 
         steps_per_sample = Int(t_sample/Δt)
-        X = trajectory(ds, Int(N*steps_per_sample); Ttr=Int(Ttr/Δt))
+        X, _ = trajectory(tds, Int(N*steps_per_sample); Ttr=Int(Ttr/Δt))
 
         X = X[1:steps_per_sample:end, 1]
 

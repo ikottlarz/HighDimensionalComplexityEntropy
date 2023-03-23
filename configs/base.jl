@@ -18,7 +18,6 @@ general_analysis_config = (
     τs=collect(1:50),
     lengths=10 .^(3:6),
     commit_hash=last_modifying_commit(
-        srcdir("complexity_entropy.jl"),
         scriptsdir("calc_complexity_entropy.jl")
     ),
     num_surrogates=50
