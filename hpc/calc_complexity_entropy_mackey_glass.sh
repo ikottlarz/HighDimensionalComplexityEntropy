@@ -6,7 +6,7 @@ gitdir=`git rev-parse --show-toplevel`
 echo "#!/bin/bash" > "$gitdir/hpc/slurm_scripts/$fn.sh"
 echo "#SBATCH -p medium" >> "$gitdir/hpc/slurm_scripts/$fn.sh"
 echo "#SBATCH -c 50" >> "$gitdir/hpc/slurm_scripts/$fn.sh"
-echo "#SBATCH -t 400" >> "$gitdir/hpc/slurm_scripts/$fn.sh"
+echo "#SBATCH -t 800" >> "$gitdir/hpc/slurm_scripts/$fn.sh"
 echo "#SBATCH --mem-per-cpu 3G" >> "$gitdir/hpc/slurm_scripts/$fn.sh"
 echo "#SBATCH -o $gitdir/hpc/outputs/$fn.out" >> "$gitdir/hpc/slurm_scripts/$fn.sh"
 
