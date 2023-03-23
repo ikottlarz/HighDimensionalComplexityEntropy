@@ -123,7 +123,8 @@ system_configs = Dict(
                 Dmin = 4,
                 commit_hash = last_modifying_commit(
                     scriptsdir("simulate_lorenz96.jl"),
-                    srcdir("git_helpers.jl")
+                    srcdir("git_helpers.jl"),
+                    srcdir("lorenz_96.jl")
                 )
             ),
             simulation_function=simulate_lorenz96,

@@ -3,6 +3,8 @@ using DrWatson
 using DynamicalSystems, DifferentialEquations
 using ProgressMeter
 
+include(srcdir("lorenz_96.jl"))
+
 function simulate_lorenz96(config::NamedTuple)
     @unpack reltol, abstol, Ttr, N, F, Δt, Dmin, Dmax = config
     data = DataFrame(dim=Int[], trajectory=Vector{Float64}[])
@@ -13,8 +15,9 @@ function simulate_lorenz96(config::NamedTuple)
         maxiters = typemax(Int)
     )
     @showprogress for D in Dmin:Dmax
-        ds = Systems.lorenz96(D, range(0; length = D, step = 0.1); F)
-        X = trajectory(ds, N*Δt; Δt, Ttr, diffeq)
+        ds = ContinuousDynamicalSystem(lorenz96_rule!, u0, p0; diffeq)
+        tds = TangentDynamicalSystem(ds; J=lorenz96_jacob!)
+        X, _ = trajectory(tds, N*Δt; Δt, Ttr)
 
         push!(data, Dict(:dim => D, :trajectory => X[:, 1]))
     end
