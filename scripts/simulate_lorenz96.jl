@@ -15,7 +15,7 @@ function simulate_lorenz96(config::NamedTuple)
         maxiters = typemax(Int)
     )
     @showprogress for D in Dmin:Dmax
-        ds = ContinuousDynamicalSystem(lorenz96_rule!, u0, p0; diffeq)
+        ds = ContinuousDynamicalSystem(lorenz96_rule!, range(0; length = D, step = 0.1), [F]; diffeq)
         tds = TangentDynamicalSystem(ds; J=lorenz96_jacob!)
         X, _ = trajectory(tds, N*Δt; Δt, Ttr)
 
