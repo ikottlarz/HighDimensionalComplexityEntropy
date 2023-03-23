@@ -1,7 +1,7 @@
 using DrWatson
 @quickactivate
 
-using ComplexityMeasures, TimeseriesSurrogates
+using ComplexityMeasures, TimeseriesSurrogates, Distances
 using ProgressMeter
 include(srcdir("threadsafe_dict.jl"))
 using .ThreadsafeDict
@@ -28,8 +28,12 @@ function complexity_entropy!(
     for m in ms
         d = dictsrv(Dict{String, Vector{Float64}}())
         Threads.@threads for τ in τs
-            est = ComplexityMeasures.SymbolicPermutation(; m, τ)
-            entropy, complexity = entropy_complexity(est, time_series)
+            c = StatisticalComplexity(
+                dist = JSDivergence(),
+                est = SymbolicPermutation(; m, τ),
+                entr = Renyi()
+            )
+            entropy, complexity = entropy_complexity(c, time_series)
             d["τ$τ"]  = [entropy,  complexity]
         end
         for τ in τs
