@@ -29,27 +29,29 @@ system, where N=length(u).
 function lorenz96_jacob!(J, u, p, t)
     N = length(u)
 
-    # diagonal
-    J[diagind(J)] .= -1
+    J[:, :] .= 0
 
-    # edge cases
+    J[1, 1] = -1
     J[1, 2] = u[N]
-    J[1, N-1] = -u[N]
-    J[1, N] = u[2] - u[N-1]
+    J[1, N - 1] = -u[N]
+    J[1, N] = u[2] - u[N - 1]
 
     J[2, 1] = u[3] - u[N]
+    J[2, 2] = -1
     J[2, 3] = u[1]
     J[2, N] = -u[1]
 
-    J[N, 1] = u[N-1]
-    J[N, N-2] = -u[N-1]
-    J[N, N-1] = u[1] - u[N - 2]
+    J[N, 1] = u[N - 1]
+    J[N, N - 2] = -u[N - 1]
+    J[N, N - 1] = u[1] - u[N - 2]
+    J[N, N] = - 1
 
-    # general case
-    for n in 3:(N-1)
-        J[n, n+1] = u[n-1]
-        J[n, n-2] = -u[n-1]
-        J[n, n-1] = u[n + 1] - u[n - 2]
+    for n in 3:(N - 1)
+        J[n, n - 2] = -u[n - 1]
+        J[n, n - 1] = u[n + 1] - u[n - 2]
+        J[n, n] = -1
+        J[n, n + 1] = u[n - 1]
     end
+
     return nothing
 end
