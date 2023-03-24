@@ -22,7 +22,8 @@ function complexity_entropy!(
     τs::AbstractVector{Int},
     data_length::Int64,
     dim::Int64,
-    ce_values::DataFrame
+    ce_values::DataFrame,
+    seed::Union{Int,Nothing} = nothing
     )
     @assert ndims(time_series) == 1
     for m in ms
@@ -43,7 +44,8 @@ function complexity_entropy!(
                 :complexity=>d["τ$τ"][2],
                 :τ=>τ,
                 :data_length=>data_length,
-                :dim=>dim
+                :dim=>dim,
+                :seed=>seed
                 )
             )
         end
@@ -62,7 +64,7 @@ function complexity_entropy(config::NamedTuple)
     data = file["data"]
     ce_values = DataFrame(
         dim=Int[], data_length=Int[], m=Int[], τ=Int[],
-        complexity=Float64[], entropy=Float64[]
+        complexity=Float64[], entropy=Float64[], seed=Nothing[]
     )
     @showprogress for dim in dims
         for data_length in lengths
@@ -87,19 +89,22 @@ function surrogate_complexity_entropy(config::NamedTuple)
     data = file["data"]
     ce_values = DataFrame(
         dim=Int[], data_length=Int[], m=Int[], τ=Int[],
-        complexity=Float64[], entropy=Float64[]
+        complexity=Float64[], entropy=Float64[], seed=Int[]
     )
-    for n in 1:num_surrogates
+    for _ in 1:num_surrogates
+        seed = rand(1:typemax(Int))
+        rng = Xoshiro(seed)
         @showprogress for dim in dims
             for data_length in lengths
                 sur = surrogate(
                     data[data.dim .== dim, :trajectory][1][1:data_length],
-                    surrogate_func
+                    surrogate_func;
+                    rng
                 )
                 @assert ndims(sur) == 1
                 complexity_entropy!(
                     sur;
-                    ms, τs, ce_values, dim, data_length
+                    ms, τs, ce_values, dim, data_length, seed
                 )
             end
         end
