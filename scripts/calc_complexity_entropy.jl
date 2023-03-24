@@ -1,7 +1,7 @@
 using DrWatson
 @quickactivate
 
-using ComplexityMeasures, TimeseriesSurrogates, Distances
+using ComplexityMeasures, TimeseriesSurrogates, Distances, Random
 using ProgressMeter
 include(srcdir("threadsafe_dict.jl"))
 using .ThreadsafeDict
