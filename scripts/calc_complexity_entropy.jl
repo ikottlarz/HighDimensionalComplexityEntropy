@@ -64,7 +64,7 @@ function complexity_entropy(config::NamedTuple)
     data = file["data"]
     ce_values = DataFrame(
         dim=Int[], data_length=Int[], m=Int[], τ=Int[],
-        complexity=Float64[], entropy=Float64[]
+        complexity=Float64[], entropy=Float64[], seed=Nothing[]
     )
     @showprogress for dim in dims
         for data_length in lengths
