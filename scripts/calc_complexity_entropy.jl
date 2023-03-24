@@ -98,7 +98,7 @@ function surrogate_complexity_entropy(config::NamedTuple)
             for data_length in lengths
                 sur = surrogate(
                     data[data.dim .== dim, :trajectory][1][1:data_length],
-                    surrogate_func;
+                    surrogate_func,
                     rng
                 )
                 @assert ndims(sur) == 1
