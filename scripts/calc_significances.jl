@@ -5,7 +5,7 @@ using HypothesisTests, Distances
 using LinearAlgebra: triu
 using ProgressMeter
 
-function surrogate_dists(surrogates; dim, data_length, m, τ)
+function surrogate_dists(surrogates; dim, data_length, m, τ, num_surrogates)
     surrogate_values = surrogates[
         (surrogates.dim .== dim) .&
         (surrogates.data_length .== data_length) .&
@@ -64,8 +64,8 @@ function significance_heatmap(system_config)
                         (original.τ .== τ),
                         [:entropy, :complexity]
                     ]
-                    ft_surrogate_dist_vec, ft_sp_matrix = surrogate_dists(ft_surrogates; dim, data_length, m, τ)
-                    aaft_surrogate_dist_vec, aaft_sp_matrix = surrogate_dists(aaft_surrogates; dim, data_length, m, τ)
+                    ft_surrogate_dist_vec, ft_sp_matrix = surrogate_dists(ft_surrogates; dim, data_length, m, τ, num_surrogates)
+                    aaft_surrogate_dist_vec, aaft_sp_matrix = surrogate_dists(aaft_surrogates; dim, data_length, m, τ, num_surrogates)
 
                     truth_point = hcat(
                         original_value[:, :entropy],
