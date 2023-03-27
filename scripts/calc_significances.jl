@@ -23,7 +23,7 @@ function surrogate_dists(surrogates; dim, data_length, m, τ, num_surrogates)
     # check that we didn't make a mistake with the dims=... argument
     @assert all(size(surrogate_distances) .== (num_surrogates, num_surrogates))
     # take only upper triangluar part of symmetric matrix!
-    return surrogate_distances[triu(trues(size(surrogate_dists)), 1)], sp_matrix
+    return surrogate_distances[triu(trues(size(surrogate_distances)), 1)], sp_matrix
 end
 
 """
