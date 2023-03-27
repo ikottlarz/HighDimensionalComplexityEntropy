@@ -74,7 +74,7 @@ function significance_heatmap(system_config)
                     truth_surrogate_dists = pairwise(Euclidean(), ft_sp_matrix, truth_point, dims=1)
                     @assert length(truth_surrogate_dists) == num_surrogates
                     truth_surrogate_dist_vec = vcat(truth_surrogate_dists...)
-                    p = pvalue(
+                    p = HypothesisTests.pvalue(
                             ApproximateTwoSampleKSTest(
                                 truth_surrogate_dist_vec,
                                 ft_surrogate_dist_vec
@@ -85,7 +85,7 @@ function significance_heatmap(system_config)
                     truth_surrogate_dists = pairwise(Euclidean(), aaft_sp_matrix, truth_point, dims=1)
                     @assert length(truth_surrogate_dists) == num_surrogates
                     truth_surrogate_dist_vec = vcat(truth_surrogate_dists...)
-                    p = pvalue(
+                    p = HypothesisTests.pvalue(
                             ApproximateTwoSampleKSTest(
                                 truth_surrogate_dist_vec,
                                 aaft_surrogate_dist_vec
