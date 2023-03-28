@@ -37,9 +37,9 @@ function significance_heatmap(system_config)
     @unpack num_surrogates, τs, ms, lengths, dims, prefix, simulation_parameters = analysis_config
     original_file, _ = produce_or_load(complexity_entropy, analysis_config, datadir("analysis"); filename=hash, prefix)
     # generate phase randomized surrogates
-    ft_sur_config = (analysis_config..., surrogate_func=RandomFourier(true))
+    ft_sur_config = (analysis_config..., surrogate_func=:RandomFourier)
     ft_surrogate_file, _ = produce_or_load(surrogate_complexity_entropy, ft_sur_config, datadir("analysis"); filename=hash, prefix="$(prefix)_ft_surrogates")
-    aaft_sur_config = (analysis_config..., surrogate_func=AAFT())
+    aaft_sur_config = (analysis_config..., surrogate_func=:AAFT)
     aaft_surrogate_file, _ = produce_or_load(surrogate_complexity_entropy, aaft_sur_config, datadir("analysis"); filename=hash, prefix="$(prefix)_aaft_surrogates")
 
     original = original_file["data"]

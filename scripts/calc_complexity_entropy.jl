@@ -6,6 +6,8 @@ using ProgressMeter
 include(srcdir("threadsafe_dict.jl"))
 using .ThreadsafeDict
 
+surrogate_methods = Dict(:RandomFourier=>RandomFourier(true), :AAFT=>AAFT())
+
 """
 function complexity_entropy!(time_series; ms, τs, ce_values::Dict)
 
@@ -98,7 +100,7 @@ function surrogate_complexity_entropy(config::NamedTuple)
             for data_length in lengths
                 sur = surrogate(
                     data[data.dim .== dim, :trajectory][1][1:data_length],
-                    surrogate_func,
+                    surrogate_methods[surrogate_func],
                     rng
                 )
                 @assert ndims(sur) == 1
