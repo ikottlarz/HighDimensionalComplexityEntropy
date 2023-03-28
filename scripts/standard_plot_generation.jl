@@ -112,7 +112,8 @@ end
 function plot_system!(
     ax::Union{Axis, NamedTuple},
     originals::DataFrame,
-    surrogates::DataFrame,
+    ft_surrogates::DataFrame,
+    aaft_surrogates::DataFrame,
     iterator_quantity_name::String,
     inset::Bool,
     inset_xlims=nothing,
@@ -179,16 +180,31 @@ function plot_system!(
     end
     scatter!(
         ax,
-        surrogates[:, :entropy], surrogates[:, :complexity],
+        ft_surrogates[:, :entropy], ft_surrogates[:, :complexity],
         color=scale.(surrogates[:, single_iterator_names[iterator_quantity_name]]), marker=:dtriangle,
+        strokecolor=:black, strokewidth=0.5,
+        colorrange=crange,
+    )
+    scatter!(
+        ax,
+        aaft_surrogates[:, :entropy], aaft_surrogates[:, :complexity],
+        color=scale.(aaft_surrogates[:, single_iterator_names[iterator_quantity_name]]), marker=:dtriangle,
         strokecolor=:black, strokewidth=0.5,
         colorrange=crange,
     )
     if inset
         scatter!(
             ins,
-            surrogates[:, :entropy], surrogates[:, :complexity],
-            color=scale.(surrogates[:, single_iterator_names[iterator_quantity_name]]),
+            ft_surrogates[:, :entropy], ft_surrogates[:, :complexity],
+            color=scale.(ft_surrogates[:, single_iterator_names[iterator_quantity_name]]),
+            marker=:dtriangle,
+            strokecolor=:black, strokewidth=0.5,
+            colorrange=crange,
+        )
+        scatter!(
+            ins,
+            aaft_surrogates[:, :entropy], aaft_surrogates[:, :complexity],
+            color=scale.(aaft_surrogates[:, single_iterator_names[iterator_quantity_name]]),
             marker=:dtriangle,
             strokecolor=:black, strokewidth=0.5,
             colorrange=crange,
@@ -268,10 +284,18 @@ hashes = Dict(
 
 data = Dict{String, NamedTuple}()
 for system in systems
-    @unpack analysis_config = system_configs[system]
-    @unpack num_surrogates, prefix = analysis_config
+    system_config = system_configs[system]
+    @unpack analysis_config = system_config
+    @show analysis_config
+    @unpack prefix = analysis_config
     original_file, _ = produce_or_load(complexity_entropy, analysis_config, datadir("analysis"); filename=hash, prefix)
-    surrogate_file, _ = produce_or_load(surrogate_complexity_entropy, analysis_config, datadir("analysis"); filename=hash, prefix="$(prefix)_surrogates")
+    # generate phase randomized surrogates
+    ft_sur_config = (analysis_config..., surrogate_func=RandomFourier(true))
+    @show ft_sur_config
+    @show hash(ft_sur_config)
+    ft_surrogate_file, _ = produce_or_load(surrogate_complexity_entropy, ft_sur_config, datadir("analysis"); filename=hash, prefix="$(prefix)_ft_surrogates")
+    aaft_sur_config = (analysis_config..., surrogate_func=AAFT())
+    aaft_surrogate_file, _ = produce_or_load(surrogate_complexity_entropy, aaft_sur_config, datadir("analysis"); filename=hash, prefix="$(prefix)_aaft_surrogates")
     ky_dims = wload(datadir("analysis/$(prefix)_ky_dims_$(hashes[prefix]).jld2"))
     ky_data = ky_dims["data"]
     data[system] = (
@@ -279,10 +303,15 @@ for system in systems
             original_file["data"],
             ky_data,
             on=:dim),
-        surrogates = outerjoin(
-            surrogate_file["data"],
+        ft_surrogates = outerjoin(
+            ft_surrogate_file["data"],
             ky_data,
             on=:dim
-        )
+        ),
+        aaft_surrogates = outerjoin(
+            aaft_surrogate_file["data"],
+            ky_data,
+            on=:dim
+        ),
     )
 end

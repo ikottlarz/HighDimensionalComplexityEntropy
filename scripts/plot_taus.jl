@@ -37,19 +37,24 @@ for (system_name, system_ax) in @strdict(lorenz_96, generalized_henon, mackey_gl
     fix_qs_copy = copy(fixed_quantities["functions"])
     delete!(fix_qs_copy, single_iterator_names[quantity_name])
 
-    @unpack originals, surrogates = data[system_name]
+    @unpack originals, ft_surrogates, aaft_surrogates = data[system_name]
     filtered_originals = subset(
         originals,
         fix_qs_copy...
     )
-    filtered_surrogates = subset(
-        surrogates,
+    filtered_ft_surrogates = subset(
+        ft_surrogates,
+        fix_qs_copy...
+    )
+    filtered_aaft_surrogates = subset(
+        aaft_surrogates,
         fix_qs_copy...
     )
     plot_system!(
         system_ax,
         filtered_originals,
         filtered_surrogates,
+        filtered_aaft_surrogates,
         "τs",
         inset,
         inset_xlims[system_name],
