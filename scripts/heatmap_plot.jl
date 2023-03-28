@@ -82,7 +82,7 @@ end
 # hard coded bc part of the files are not produced with this git repo!!!
 hashes = Dict(
     "kuramoto_sivashinsky" => "2102259424389999364",
-    "mackey_glass" => "2102259424389999364",
+    "mackey_glass" => "686837168688022898",
     "lorenz96"=>"6585490124554813738",
     "generalized_henon"=>"14298432815589460241"
 )
@@ -93,12 +93,13 @@ data_length = 10^6
 for (system_name, system_ax) in @strdict(lorenz_96, generalized_henon, mackey_glass, kuramoto_sivashinsky)
     @unpack analysis_config = system_configs[system_name]
     @unpack prefix = analysis_config
+    @show system_name
     file, _ = produce_or_load(significance_heatmap, system_configs[system_name], datadir("analysis"); filename=hash, prefix="$(system_name)_significances")
     data = file["data"]
     ky_dims = wload(datadir("analysis/$(prefix)_ky_dims_$(hashes[prefix]).jld2"))
     ky_data = ky_dims["data"]
     joined = outerjoin(
-            data,
+            data["ft_heatmaps"],
             ky_data,
             on=:dim)
     heatmap_matrices = joined[
@@ -114,4 +115,4 @@ for (system_name, system_ax) in @strdict(lorenz_96, generalized_henon, mackey_gl
     )
 
 end
-save(plotsdir("significance_heatmap.pdf"), fig)
+safesave(plotsdir("significance_heatmap.pdf"), fig)

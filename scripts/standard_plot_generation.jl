@@ -261,17 +261,24 @@ systems = [
 # hard coded bc part of the files are not produced with this git repo!!!
 hashes = Dict(
     "kuramoto_sivashinsky" => "2102259424389999364",
-    "mackey_glass" => "2102259424389999364",
+    "mackey_glass" => "686837168688022898",
     "lorenz96"=>"6585490124554813738",
     "generalized_henon"=>"14298432815589460241"
 )
 
 data = Dict{String, NamedTuple}()
 for system in systems
-    @unpack analysis_config = system_configs[system]
-    @unpack num_surrogates, prefix = analysis_config
+    system_config = system_configs[system]
+    @unpack analysis_config = system_config
+    @unpack num_surrogates, τs, ms, lengths, dims, prefix, simulation_parameters = analysis_config
     original_file, _ = produce_or_load(complexity_entropy, analysis_config, datadir("analysis"); filename=hash, prefix)
-    surrogate_file, _ = produce_or_load(surrogate_complexity_entropy, analysis_config, datadir("analysis"); filename=hash, prefix="$(prefix)_surrogates")
+    # generate phase randomized surrogates
+    ft_sur_config = (analysis_config..., surrogate_func=RandomFourier(true))
+    @show ft_sur_config
+    @show hash(ft_sur_config)
+    ft_surrogate_file, _ = produce_or_load(surrogate_complexity_entropy, ft_sur_config, datadir("analysis"); filename=hash, prefix="$(prefix)_ft_surrogates")
+    aaft_sur_config = (analysis_config..., surrogate_func=AAFT())
+    aaft_surrogate_file, _ = produce_or_load(surrogate_complexity_entropy, aaft_sur_config, datadir("analysis"); filename=hash, prefix="$(prefix)_aaft_surrogates")
     ky_dims = wload(datadir("analysis/$(prefix)_ky_dims_$(hashes[prefix]).jld2"))
     ky_data = ky_dims["data"]
     data[system] = (
