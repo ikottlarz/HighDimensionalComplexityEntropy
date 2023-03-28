@@ -53,7 +53,7 @@ for (system_name, system_ax) in @strdict(lorenz_96, generalized_henon, mackey_gl
     plot_system!(
         system_ax,
         filtered_originals,
-        filtered_surrogates,
+        filtered_ft_surrogates,
         filtered_aaft_surrogates,
         "τs",
         inset,
@@ -63,3 +63,4 @@ for (system_name, system_ax) in @strdict(lorenz_96, generalized_henon, mackey_gl
     )
 end
 wsave(plotsdir("$quantity_name.pdf"), fig)
+fig

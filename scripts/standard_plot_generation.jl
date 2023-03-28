@@ -54,6 +54,9 @@ function standard_figure(;
                 ylabelfont=projectdir("cmu/cmunrm.ttf"),
                 xticklabelfont=projectdir("cmu/cmunrm.ttf"),
                 yticklabelfont=projectdir("cmu/cmunrm.ttf"),
+            ),
+            Legend = (
+                labelfont=projectdir("cmu/cmunrm.ttf"),
             )
         )
     )
@@ -88,14 +91,17 @@ function standard_figure(;
     orig_marker = [
         MarkerElement(color=:black, marker=:circle)
     ]
-    sur_marker = [
+    ft_sur_marker = [
         MarkerElement(color=:black, marker=:dtriangle)
+    ]
+    aaft_sur_marker = [
+        MarkerElement(color=:black, marker=:rect)
     ]
 
     Legend(
         la[1, 1],
-        [orig_marker, sur_marker],
-        [L"original $ $", L"surrogates $ $"],
+        [orig_marker, ft_sur_marker, aaft_sur_marker],
+        ["original", "FT surrogates", "AAFT surrogates"],
         framevisible=false
     )
     return (
@@ -145,10 +151,10 @@ function plot_system!(
         strokecolor=:black, strokewidth=0.5,
         colorrange=crange,
     )
-    min_h = minimum([originals[:, :entropy]..., surrogates[:, :entropy]...])
-    min_c = minimum([originals[:, :complexity]..., surrogates[:, :complexity]...])
-    max_h = maximum([originals[:, :entropy]..., surrogates[:, :entropy]...])
-    max_c = maximum([originals[:, :complexity]..., surrogates[:, :complexity]...])
+    min_h = minimum([originals[:, :entropy]..., ft_surrogates[:, :entropy]..., aaft_surrogates[:, :entropy]...])
+    min_c = minimum([originals[:, :complexity]..., ft_surrogates[:, :complexity]..., aaft_surrogates[:, :complexity]...])
+    max_h = maximum([originals[:, :entropy]..., ft_surrogates[:, :entropy]..., aaft_surrogates[:, :entropy]...])
+    max_c = maximum([originals[:, :complexity]..., ft_surrogates[:, :complexity]..., aaft_surrogates[:, :complexity]...])
     h_span = max_h-min_h
     c_span = max_c-min_c
     xlims!(ax; low=min_h-.1h_span, high=max_h+.1h_span)
@@ -181,14 +187,14 @@ function plot_system!(
     scatter!(
         ax,
         ft_surrogates[:, :entropy], ft_surrogates[:, :complexity],
-        color=scale.(surrogates[:, single_iterator_names[iterator_quantity_name]]), marker=:dtriangle,
+        color=scale.(ft_surrogates[:, single_iterator_names[iterator_quantity_name]]), marker=:dtriangle,
         strokecolor=:black, strokewidth=0.5,
         colorrange=crange,
     )
     scatter!(
         ax,
         aaft_surrogates[:, :entropy], aaft_surrogates[:, :complexity],
-        color=scale.(aaft_surrogates[:, single_iterator_names[iterator_quantity_name]]), marker=:dtriangle,
+        color=scale.(aaft_surrogates[:, single_iterator_names[iterator_quantity_name]]), marker=:rect,
         strokecolor=:black, strokewidth=0.5,
         colorrange=crange,
     )
@@ -205,7 +211,7 @@ function plot_system!(
             ins,
             aaft_surrogates[:, :entropy], aaft_surrogates[:, :complexity],
             color=scale.(aaft_surrogates[:, single_iterator_names[iterator_quantity_name]]),
-            marker=:dtriangle,
+            marker=:rect,
             strokecolor=:black, strokewidth=0.5,
             colorrange=crange,
         )
@@ -286,15 +292,12 @@ data = Dict{String, NamedTuple}()
 for system in systems
     system_config = system_configs[system]
     @unpack analysis_config = system_config
-    @show analysis_config
     @unpack prefix = analysis_config
     original_file, _ = produce_or_load(complexity_entropy, analysis_config, datadir("analysis"); filename=hash, prefix)
     # generate phase randomized surrogates
-    ft_sur_config = (analysis_config..., surrogate_func=RandomFourier(true))
-    @show ft_sur_config
-    @show hash(ft_sur_config)
+    ft_sur_config = (analysis_config..., surrogate_func=:RandomFourier)
     ft_surrogate_file, _ = produce_or_load(surrogate_complexity_entropy, ft_sur_config, datadir("analysis"); filename=hash, prefix="$(prefix)_ft_surrogates")
-    aaft_sur_config = (analysis_config..., surrogate_func=AAFT())
+    aaft_sur_config = (analysis_config..., surrogate_func=:AAFT)
     aaft_surrogate_file, _ = produce_or_load(surrogate_complexity_entropy, aaft_sur_config, datadir("analysis"); filename=hash, prefix="$(prefix)_aaft_surrogates")
     ky_dims = wload(datadir("analysis/$(prefix)_ky_dims_$(hashes[prefix]).jld2"))
     ky_data = ky_dims["data"]
