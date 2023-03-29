@@ -115,4 +115,32 @@ for (system_name, system_ax) in @strdict(lorenz_96, generalized_henon, mackey_gl
     )
 
 end
-safesave(plotsdir("significance_heatmap.pdf"), fig)
+safesave(plotsdir("significance_heatmap_ft.pdf"), fig)
+
+@unpack fig, lorenz_96, generalized_henon, mackey_glass, kuramoto_sivashinsky = heatmap_figure()
+for (system_name, system_ax) in @strdict(lorenz_96, generalized_henon, mackey_glass, kuramoto_sivashinsky)
+    @unpack analysis_config = system_configs[system_name]
+    @unpack prefix = analysis_config
+    @show system_name
+    file, _ = produce_or_load(significance_heatmap, system_configs[system_name], datadir("analysis"); filename=hash, prefix="$(system_name)_significances")
+    data = file["data"]
+    ky_dims = wload(datadir("analysis/$(prefix)_ky_dims_$(hashes[prefix]).jld2"))
+    ky_data = ky_dims["data"]
+    joined = outerjoin(
+            data["aaft_heatmaps"],
+            ky_data,
+            on=:dim)
+    heatmap_matrices = joined[
+        (isapprox.(joined.ky_dim, ky_dim, atol=.5)) .&
+        (joined.data_length .== data_length),
+        :heatmap
+    ]
+    @assert length(heatmap_matrices) == 1
+    heatmap!(
+        system_ax,
+        (heatmap_matrices[1] .< 0.05)',
+        colorrange=(0, 1)
+    )
+
+end
+safesave(plotsdir("significance_heatmap_aaft.pdf"), fig)

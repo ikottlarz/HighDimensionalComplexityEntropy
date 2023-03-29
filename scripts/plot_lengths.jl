@@ -21,19 +21,24 @@ for (system_name, system_ax) in @strdict(lorenz_96, generalized_henon, mackey_gl
     if system_name == "generalized_henon"
         fix_qs_copy[:τ] = τ -> τ .== 1
     end
-    @unpack originals, surrogates = data[system_name]
+    @unpack originals, ft_surrogates, aaft_surrogates = data[system_name]
     filtered_originals = subset(
         originals,
         fix_qs_copy...
     )
-    filtered_surrogates = subset(
-        surrogates,
+    filtered_ft_surrogates = subset(
+        ft_surrogates,
+        fix_qs_copy...
+    )
+    filtered_aaft_surrogates = subset(
+        aaft_surrogates,
         fix_qs_copy...
     )
     plot_system!(
         system_ax,
         filtered_originals,
-        filtered_surrogates,
+        filtered_ft_surrogates,
+        filtered_aaft_surrogates,
         "lengths",
         inset,
     )

@@ -186,32 +186,32 @@ function plot_system!(
     end
     scatter!(
         ax,
-        ft_surrogates[:, :entropy], ft_surrogates[:, :complexity],
-        color=scale.(ft_surrogates[:, single_iterator_names[iterator_quantity_name]]), marker=:dtriangle,
+        aaft_surrogates[:, :entropy], aaft_surrogates[:, :complexity],
+        color=scale.(aaft_surrogates[:, single_iterator_names[iterator_quantity_name]]), marker=:rect, opacity=0.5,
         strokecolor=:black, strokewidth=0.5,
         colorrange=crange,
     )
     scatter!(
         ax,
-        aaft_surrogates[:, :entropy], aaft_surrogates[:, :complexity],
-        color=scale.(aaft_surrogates[:, single_iterator_names[iterator_quantity_name]]), marker=:rect,
+        ft_surrogates[:, :entropy], ft_surrogates[:, :complexity],
+        color=scale.(ft_surrogates[:, single_iterator_names[iterator_quantity_name]]), marker=:dtriangle,
         strokecolor=:black, strokewidth=0.5,
         colorrange=crange,
     )
     if inset
         scatter!(
             ins,
-            ft_surrogates[:, :entropy], ft_surrogates[:, :complexity],
-            color=scale.(ft_surrogates[:, single_iterator_names[iterator_quantity_name]]),
-            marker=:dtriangle,
+            aaft_surrogates[:, :entropy], aaft_surrogates[:, :complexity],
+            color=scale.(aaft_surrogates[:, single_iterator_names[iterator_quantity_name]]),
+            marker=:rect,
             strokecolor=:black, strokewidth=0.5,
             colorrange=crange,
         )
         scatter!(
             ins,
-            aaft_surrogates[:, :entropy], aaft_surrogates[:, :complexity],
-            color=scale.(aaft_surrogates[:, single_iterator_names[iterator_quantity_name]]),
-            marker=:rect,
+            ft_surrogates[:, :entropy], ft_surrogates[:, :complexity],
+            color=scale.(ft_surrogates[:, single_iterator_names[iterator_quantity_name]]),
+            marker=:dtriangle,
             strokecolor=:black, strokewidth=0.5,
             colorrange=crange,
         )
