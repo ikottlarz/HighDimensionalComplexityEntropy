@@ -87,7 +87,9 @@ function standard_figure(;
 
     Label(fig[1:8, 1], ylabel, rotation=pi/2)
     Label(fig[9, 2:3], xlabel)
-
+    dummy_marker = [
+        MarkerElement(color=:white, marker=:circle)
+    ]
     orig_marker = [
         MarkerElement(color=:black, marker=:circle)
     ]
@@ -100,8 +102,8 @@ function standard_figure(;
 
     Legend(
         la[1, 1],
-        [orig_marker, ft_sur_marker, aaft_sur_marker],
-        ["original", "FT surrogates", "AAFT surrogates"],
+        [dummy_marker, dummy_marker, orig_marker, ft_sur_marker, aaft_sur_marker],
+        [" ", " ", "original", "FT surrogates", "AAFT surrogates"],
         framevisible=false
     )
     return (
