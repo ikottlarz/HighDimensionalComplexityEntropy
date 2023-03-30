@@ -6,12 +6,12 @@ using CairoMakie
 include(projectdir("configs/base.jl"))
 include(scriptsdir("calc_significances.jl"))
 
-struct SignificanceTicks end
+struct CbarLogTicks end
 
 # we need this custom function to make our colorbar tick labels
-function Makie.get_ticks(::SignificanceTicks, any_scale, ::Makie.Automatic, vmin, vmax)
-    vals_h = [0, 1]
-    labels = [val > 0.5 ? L"significant $ $" : L"not significant $ $" for val in vals_h]
+function Makie.get_ticks(::CbarLogTicks, any_scale, ::Makie.Automatic, vmin, vmax)
+    vals_h = [-5, -4, -3, -2, log10(0.05), 0]
+    labels = [L"10^{-5}",L"10^{-4}",L"10^{-3}",L"10^{-2}",L"0.05", L"1"]
 
     vals_h, labels
 end
@@ -39,9 +39,24 @@ end
 function heatmap_figure()
     set_theme!(
         Theme(
-            colormap=:hawaii,
+            colormap=cgrad([:gray90, :gray80, :gray70, :gray60, colorant"rgb(43,78,109)", :firebrick4, :maroon], log10.([1e-5, 1e-4, 1e-3, 1e-2, 0.05, 0.5, 1])),
             markersize=20,
             fontsize=32,
+            Axis = (;
+                titlefont = projectdir("cmu/cmunrm.ttf"),
+                xlabelfont=projectdir("cmu/cmunrm.ttf"),
+                ylabelfont=projectdir("cmu/cmunrm.ttf"),
+                xticklabelfont=projectdir("cmu/cmunrm.ttf"),
+                yticklabelfont=projectdir("cmu/cmunrm.ttf"),
+                xticklabelsize=25,
+                yticklabelsize=25
+            ),
+            Legend = (
+                labelfont=projectdir("cmu/cmunrm.ttf"),
+            ),
+            Colorbar = (
+                ticklabelfont=projectdir("cmu/cmunrm.ttf"),
+            )
         )
     )
     fig = Figure(resolution=(800, 900))
@@ -55,18 +70,19 @@ function heatmap_figure()
     ylabel = L"pattern length $ $"
     xticks = XTicks()
     yticks = MTicks()
-    lorenz_96 = Axis(lor_a[1, 1], title=L"Lorenz-96 $ $"; xticks, yticks)
-    generalized_henon = Axis(hen_a[1, 1], title=L"Generalized Henon $ $"; xticks, yticks)
-    mackey_glass = Axis(mg_a[1, 1], title=L"Mackey-Glass $ $"; xticks, yticks)
-    kuramoto_sivashinsky = Axis(ks_a[1, 1], title=L"Kuramoto-Sivashinsky $ $"; xticks, yticks, xlabel)
+    lorenz_96 = Axis(lor_a[1, 1], title="Lorenz-96"; xticks, yticks)
+    generalized_henon = Axis(hen_a[1, 1], title="Generalized Hénon"; xticks, yticks)
+    mackey_glass = Axis(mg_a[1, 1], title="Mackey-Glass"; xticks, yticks)
+    kuramoto_sivashinsky = Axis(ks_a[1, 1], title="Kuramoto-Sivashinsky"; xticks, yticks, xlabel)
     linkaxes!(lorenz_96, generalized_henon, mackey_glass, kuramoto_sivashinsky)
 
     Label(fig[1:4, 1], ylabel, rotation=pi/2)
 
     Colorbar(
-        ca[1, 1], colormap=cgrad(:hawaii, 2, categorical = true),
-        vertical=true, label = L"significance $ $", limits=(-.5, 1.5),
-        flipaxis=true, ticks=SignificanceTicks(), ticklabelrotation=pi/2
+        ca[1, 1],
+        vertical=true, label = L"$p$ value",
+        flipaxis=true, colorrange=(-5, 0), ticks=CbarLogTicks(),
+        lowclip=:gray90, ticklabelsize=25
     )
     return (
         fig=fig,
@@ -110,8 +126,8 @@ for (system_name, system_ax) in @strdict(lorenz_96, generalized_henon, mackey_gl
     @assert length(heatmap_matrices) == 1
     heatmap!(
         system_ax,
-        (heatmap_matrices[1] .< 0.05)',
-        colorrange=(0, 1)
+        log10.(heatmap_matrices[1])';
+        colorrange=(-5, 0)
     )
 
 end
@@ -136,10 +152,12 @@ for (system_name, system_ax) in @strdict(lorenz_96, generalized_henon, mackey_gl
         :heatmap
     ]
     @assert length(heatmap_matrices) == 1
+    @show minimum(heatmap_matrices[1])
+    @show maximum(heatmap_matrices[1])
     heatmap!(
         system_ax,
-        (heatmap_matrices[1] .< 0.05)',
-        colorrange=(0, 1)
+        log10.(heatmap_matrices[1])',
+        colorrange=(-5, 0)
     )
 
 end
