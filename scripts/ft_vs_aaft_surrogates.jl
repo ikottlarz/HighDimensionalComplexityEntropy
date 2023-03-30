@@ -81,8 +81,8 @@ function pe_aape(config::NamedTuple)
             rng
         )
         push!(data, Dict(
-            :permutation_entropy=>entropy(Renyi(), est, ft_sur),
-            :amplitude_aware_permutation_entropy=>entropy(Renyi(), west, ft_sur),
+            :permutation_entropy=>entropy_normalized(Renyi(), est, ft_sur),
+            :amplitude_aware_permutation_entropy=>entropy_normalized(Renyi(), west, ft_sur),
             :surrogate_algorithm=>:FT,
             :seed=>seed
         ))
