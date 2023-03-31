@@ -46,7 +46,7 @@ system_names = Dict(
     )
 
 abcd = [["A", "E"], ["B", "F"], ["C", "G"], ["D", "H"]]
-
+xlabels = [L"D", L"D", L"\tau", L"L"]
 for (i, system) in enumerate( ["lorenz_96", "generalized_henon", "mackey_glass", "kuramoto_sivashinsky"])
     system_config = system_configs[system]
     @unpack analysis_config = system_config
@@ -72,7 +72,7 @@ for (i, system) in enumerate( ["lorenz_96", "generalized_henon", "mackey_glass",
         g = lyap_layout[1, i] = GridLayout()
 
         ax_top = Axis(g[1, 1])
-        ax_bottom = Axis(g[2, 1]; yticks=[-2.75])
+        ax_bottom = Axis(g[2, 1]; yticks=[-2.75], xlabel=xlabels[i])
 
         on(lims) do (bottom, top)
             ylims!(ax_bottom, bottom)
@@ -117,7 +117,7 @@ for (i, system) in enumerate( ["lorenz_96", "generalized_henon", "mackey_glass",
 
         notify(lims)
     else
-        lyap_ax = Axis(lyap_layout[1, i])
+        lyap_ax = Axis(lyap_layout[1, i]; xlabel=xlabels[i])
 
         linkxaxes!(ky_ax, lyap_ax)
         try
