@@ -1,7 +1,7 @@
 using DrWatson
 @quickactivate
 
-using CairoMakie
+using CairoMakie, Colors
 
 include(projectdir("configs/base.jl"))
 include(scriptsdir("calc_significances.jl"))
