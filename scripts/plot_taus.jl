@@ -62,5 +62,5 @@ for (system_name, system_ax) in @strdict(lorenz_96, generalized_henon, mackey_gl
         inset_kwargs
     )
 end
-safesave(plotsdir("taus.pdf"), fig)
+safesave(plotsdir("taus.eps"), fig)
 fig

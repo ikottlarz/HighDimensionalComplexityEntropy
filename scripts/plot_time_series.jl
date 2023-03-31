@@ -142,4 +142,4 @@ Legend(
 rowgap!(fig.layout, 0)
 
 fig
-safesave(plotsdir("example_time_series.pdf"), fig)
+safesave(plotsdir("example_time_series.eps"), fig)

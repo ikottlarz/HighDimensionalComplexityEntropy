@@ -161,4 +161,4 @@ for (system_name, system_ax) in @strdict(lorenz_96, generalized_henon, mackey_gl
     )
 
 end
-safesave(plotsdir("significance_heatmap_aaft.pdf"), fig)
+safesave(plotsdir("significance_heatmap_aaft.eps"), fig)

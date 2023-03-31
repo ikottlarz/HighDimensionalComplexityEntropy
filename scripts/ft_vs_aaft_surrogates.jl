@@ -181,5 +181,5 @@ for pe in [:permutation_entropy, :amplitude_aware_permutation_entropy]
 
 
 
-    safesave(plotsdir("surrogate_$(pe)_inspection.pdf"), fig)
+    safesave(plotsdir("surrogate_$(pe)_inspection.eps"), fig)
 end
