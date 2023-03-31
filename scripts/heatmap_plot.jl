@@ -131,7 +131,7 @@ for (system_name, system_ax) in @strdict(lorenz_96, generalized_henon, mackey_gl
     )
 
 end
-safesave(plotsdir("significance_heatmap_ft.pdf"), fig)
+safesave(plotsdir("significance_heatmap_ft.eps"), fig)
 
 @unpack fig, lorenz_96, generalized_henon, mackey_glass, kuramoto_sivashinsky = heatmap_figure()
 for (system_name, system_ax) in @strdict(lorenz_96, generalized_henon, mackey_glass, kuramoto_sivashinsky)
