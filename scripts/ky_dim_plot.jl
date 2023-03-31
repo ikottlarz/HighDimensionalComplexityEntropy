@@ -45,6 +45,8 @@ system_names = Dict(
         "kuramoto_sivashinsky"=>"Kuramoto-Sivashinsky"
     )
 
+abcd = [["A", "E"], ["B", "F"], ["C", "G"], ["D", "H"]]
+
 for (i, system) in enumerate( ["lorenz_96", "generalized_henon", "mackey_glass", "kuramoto_sivashinsky"])
     system_config = system_configs[system]
     @unpack analysis_config = system_config
@@ -56,6 +58,14 @@ for (i, system) in enumerate( ["lorenz_96", "generalized_henon", "mackey_glass",
     push!(ky_axes, ky_ax)
 
     scatter!(ky_ax, ky_data[:, :dim], ky_data[:, :ky_dim]; color=:red, marker=:diamond)
+    Label(ky_layout[1, i, TopLeft()], abcd[i][1],
+        font = projectdir("cmu/cmunbx.ttf"),
+        padding = (0, 5, 5, 0),
+        halign = :right)
+    Label(lyap_layout[1, i, TopLeft()], abcd[i][2],
+        font = projectdir("cmu/cmunbx.ttf"),
+        padding = (0, 5, 5, 0),
+        halign = :right)
     if system == "generalized_henon"
 
         lims = Observable(((-2.755, -2.7), (0, 0.15)))
@@ -123,5 +133,6 @@ for (i, system) in enumerate( ["lorenz_96", "generalized_henon", "mackey_glass",
     end
 end
 linkyaxes!(ky_axes...)
+rowgap!(fig.layout, 0)
 fig
 safesave(plotsdir("ky_dims.eps"), fig)
