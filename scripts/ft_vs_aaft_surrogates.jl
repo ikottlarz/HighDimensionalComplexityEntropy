@@ -129,8 +129,13 @@ for pe in [:permutation_entropy, :amplitude_aware_permutation_entropy]
     )
 
     for system in ["lorenz_96", "generalized_henon", "mackey_glass", "kuramoto_sivashinsky"]
-        file, _ = produce_or_load(pe_aape, (m=6, τ=10, ky_dim=43, system=system, data_length=10^6, n_sur=400), datadir("analysis"), filename=hash, prefix="$(system)_pe_aape")
+        file = nothing
         @show system
+        if system == "generalized_henon"
+            file, _ = produce_or_load(pe_aape, (m=6, τ=1, ky_dim=43, system=system, data_length=10^6, n_sur=400), datadir("analysis"), filename=hash, prefix="$(system)_pe_aape")
+        else
+            file, _ = produce_or_load(pe_aape, (m=6, τ=10, ky_dim=43, system=system, data_length=10^6, n_sur=400), datadir("analysis"), filename=hash, prefix="$(system)_pe_aape")
+        end
         pe_ax = layouts[system]
         data = file["data"]
         # aape_ax = Axis(layout[2, :]; title="Amplitude Aware PE")
