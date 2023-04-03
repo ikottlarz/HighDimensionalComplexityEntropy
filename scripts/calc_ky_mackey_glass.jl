@@ -14,10 +14,11 @@ function ky_dim_mackey_glass(config::NamedTuple)
         u0 = zeros(Int(τ/Δt))
         u0[1] = 1.
         p = β, γ, n, Δt
-        ds = DiscreteDynamicalSystem(mackey_glass!, u0, p, mackey_glass_jac!)
+        ds = DiscreteDynamicalSystem(mackey_glass!, u0, p)
+        tds = TangentDynamicalSystem(ds; J=mackey_glass_jac!)
 
         k = τ+5
-        Lambdas = lyapunovspectrum(ds, N*Δt, k; Ttr=Int(Ttr/Δt), Δt=10)
+        Lambdas = lyapunovspectrum(tds, N*Δt, k; Ttr=Int(Ttr/Δt), Δt=10)
 
         push!(
             tmp_data,
