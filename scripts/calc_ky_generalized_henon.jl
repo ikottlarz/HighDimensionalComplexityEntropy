@@ -10,8 +10,9 @@ function ky_dim_generalized_henon(config::NamedTuple)
     data = DataFrame(dim=Int[], ky_dim=Float64[], lyapunov_spectrum=Vector{Float64}[])
     @showprogress for D in Dmin:Dmax
         u0 = zeros(D)
-        ds = DiscreteDynamicalSystem(henons!, u0, [a, b], henons_jac!)
-        Lambdas = lyapunovspectrum(ds, N; Ttr)
+        ds = DiscreteDynamicalSystem(henons!, u0, [a, b])
+        tds = TangentDynamicalSystem(ds; J=henons_jac!)
+        Lambdas = lyapunovspectrum(tds, N; Ttr)
         push!(
             data,
             Dict(
