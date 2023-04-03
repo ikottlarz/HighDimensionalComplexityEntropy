@@ -15,9 +15,10 @@ function ky_dim_lorenz96(config::NamedTuple)
     d = dictsrv(Dict{String, DataFrame}())
     Threads.@threads for D in Dmin:Dmax
         tmp_data = DataFrame(dim=Int[], ky_dim=Float64[], lyapunov_spectrum=Vector{Float64}[])
+        u0 = range(0; length = D, step = 0.1)
         ds = ContinuousDynamicalSystem(lorenz96_rule!, u0, [F]; diffeq)
-        tds = TangentDynamicalSystem(ds; J=lorenz_96_jacob!)
-        Lambdas = lyapunovspectrum(tds, N; Ttr, diffeq)
+        tds = TangentDynamicalSystem(ds; J=lorenz96_jacob!)
+        Lambdas = lyapunovspectrum(tds, N; Ttr)
         push!(
             tmp_data,
             Dict(
