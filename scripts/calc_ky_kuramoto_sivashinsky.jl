@@ -69,6 +69,6 @@ function ky_dim_kuramoto_sivashinsky(config)
     )
     return Dict(
         "data" => data,
-        "parameters" => @strdict(b_min, b_max, b_step, T, Δt, Δx)
+        "parameters" => @strdict(b_min, b_max, b_step, N, Δt, Δx)
     )
 end
