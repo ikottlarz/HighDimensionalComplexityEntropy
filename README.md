@@ -1,5 +1,7 @@
 # HighDimensionalComplexityEntropy
 
+Repository for our Paper "Ordinal pattern-based complexity analysis of high-dimensional chaotic time series" (https://doi.org/10.1063/5.0147219).
+
 This code base is using the [Julia Language](https://julialang.org/) and
 [DrWatson](https://juliadynamics.github.io/DrWatson.jl/stable/)
 to make a reproducible scientific project named
